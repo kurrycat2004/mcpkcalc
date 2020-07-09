@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>MCPK Calculator</title>
+    <link rel="stylesheet" href="./libs/bootstrap/css/bootstrap.min.css">
+    <link href="style.css" rel="stylesheet" type="text/css" />
+    <script src="./libs/p5/p5.js"></script>
+    <script src="./libs/p5/addons/p5.sound.min.js"></script>
+
+    <script src="exportCSV.js"></script>
+    <script src="block.js"></script>
+    <script src="ground.js"></script>
+    <script src="tick.js"></script>
+    <script src="tickSequence.js"></script>
+    <script src="script.js"></script>
+</head>
+
+<body>
+    <div class="container-fluid">
+        <div class="container-fluid mt-3" id="parse">
+            <div class="row">
+                <div class="col">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="jumpSpan">Jump</span>
+                        </div>
+                        <input aria-describedby="jumpSpan" aria-label="Jump" class="form-control" id="jump"
+                            placeholder="4x2+0.5" type="text">
+                    </div>
+                </div>
+                <div class="col">
+                    <a id="parsedDistance"></a>
+                </div>
+            </div>
+        </div>
+        <div class="container-fluid mt-3" id="jump">
+            <div class="row">
+                <div class="col">
+                    <div class="input-group mb-1">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="facingSpan">Facing (degrees)</span>
+                        </div>
+                        <input type="number" aria-describedby="facingSpan" aria-label="Facing in degrees"
+                            class="form-control" id="facing" value="0"></input>
+                    </div>
+                    <div class="input-group mb-1">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="initSpeedSpan">Initial speed</span>
+                            <span class="input-group-text" id="initSpeedSpanX">X: </span>
+                        </div>
+                        <input type="number" aria-describedby="initSpeedSpanX" aria-label="Initial speed x"
+                            class="form-control" id="initialSpeedX" value="0"></input>
+                        <div class="input-group-append">
+                            <span class="input-group-text" id="initSpeedSpanZ">Z: </span>
+                        </div>
+                        <input type="number" aria-describedby="initSpeedSpanZ" aria-label="Initial speed z"
+                            class="form-control" id="initialSpeedZ" value="0"></input>
+                    </div>
+                    <div class="input-group mb-1">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="runTickSpan">Run Ticks</span>
+                        </div>
+                        <input type="number" aria-describedby="runTickSpan" aria-label="Tick to run before jumping"
+                            class="form-control" id="runTicks" value="0"></input>
+                    </div>
+                    <div class="input-group mb-1">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="ticksSpan">Ticks</span>
+                        </div>
+                        <input type="number" aria-describedby="ticksSpan" aria-label="Number of ticks"
+                            class="form-control" id="ticks" value="0"></input>
+                    </div>
+                    <div class="input-group mb-1">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="chainedSpan">Chained:</span>
+                        </div>
+                        <div class="input-group-text bg-white">
+                            <input type="checkbox" aria-describedby="chainedSpan"
+                                aria-label="If the first tick is a landing tick" id="chained" value="0"></input>
+                        </div>
+                        <div class="input-group-append">
+                            <span class="input-group-text" id="strafeSpan">Strafe:</span>
+                        </div>
+                        <div class="input-group-text bg-white">
+                            <input type="checkbox" aria-describedby="strafeSpan"
+                                aria-label="If the jump should be with a 45 strafe" id="strafe" value="0"></input>
+                        </div>
+                    </div>
+                    <button id="calculate" class="btn btn-dark">Calculate</button>
+                </div>
+                <div class="col">
+                    <a id="solution"></a>
+                </div>
+            </div>
+        </div>
+        <div class="container-fluid mt-3" id="distance">
+            <div class="row">
+                <div class="col">
+                    <div class="input-group mb-1">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="facingDistanceSpan">Facing (degrees)</span>
+                        </div>
+                        <input type="number" aria-describedby="facingDistanceSpan" aria-label="Facing in degrees"
+                            class="form-control" id="facingDistance" value="0"></input>
+                    </div>
+                    <div class="input-group mb-1">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="distanceSpan">Distance</span>
+                            <span class="input-group-text" id="distanceSpanX">X: </span>
+                        </div>
+                        <input type="number" aria-describedby="distanceSpanX" aria-label="Distance x"
+                            class="form-control" id="distanceX" value="0"></input>
+                        <div class="input-group-append">
+                            <span class="input-group-text" id="distanceSpanY">Y: </span>
+                        </div>
+                        <input type="number" aria-describedby="distanceSpanY" aria-label="Distance y"
+                            class="form-control" id="distanceY" value="0"></input>
+                        <div class="input-group-append">
+                            <span class="input-group-text" id="distanceSpanZ">Z: </span>
+                        </div>
+                        <input type="number" aria-describedby="distanceSpanZ" aria-label="Distance z"
+                            class="form-control" id="distanceZ" value="0"></input>
+                    </div>
+                    <div class="input-group mb-1">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="chainedDSpan">Chained:</span>
+                        </div>
+                        <div class="input-group-text bg-white">
+                            <input type="checkbox" aria-describedby="chainedDSpan"
+                                aria-label="If the first tick is a landing tick" id="chainedDistance" value="0"></input>
+                        </div>
+                        <div class="input-group-append">
+                            <span class="input-group-text" id="strafeDSpan">Strafe:</span>
+                        </div>
+                        <div class="input-group-text bg-white">
+                            <input type="checkbox" aria-describedby="strafeDSpan"
+                                aria-label="If the jump should be with a 45 strafe" id="strafeDistance"
+                                value="0"></input>
+                        </div>
+                    </div>
+                    <button id="calculateDistance" class="btn btn-dark">Calculate</button>
+                </div>
+                <div class="col">
+                    <a id="solutionDistance"></a>
+                </div>
+            </div>
+        </div>
+        <div class="container-fluid mt-3" id="simulation">
+            <div class="row">
+                <div class="col">
+                    <div id="canvas">
+
+                    </div>
+                </div>
+                <div class="col" style="overflow-y: scroll; height: 600px;">
+                    <div class="container-fluid" id="tickSequenceContainer">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="./libs//jQuery/js/jquery-3.5.1.slim.min.js"></script>
+    <script src="./libs/Popper/js/popper.js"></script>
+    <script src="./libs/bootstrap/js/bootstrap.min.js"></script>
+</body>
+
+</html>
