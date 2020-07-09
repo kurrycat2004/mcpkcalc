@@ -14,11 +14,6 @@ class Ground {
                 if (a.pos.y < b.pos.y) return a;
                 return b;
             });
-            push()
-            strokeWeight(2);
-            stroke(255, 0, 0);
-            point(pos.z * blockSize, highest.pos.y * blockSize)
-            pop()
             return blockCount - highest.pos.y - 5;
         }
     }

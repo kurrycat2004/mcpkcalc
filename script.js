@@ -157,10 +157,22 @@ function draw() {
         stroke(255);
         fill(255);
         point(i.pos.z * blockSize, (blockCount - i.pos.y - 5) * blockSize);
-        fill(255, 0, 0);
+        push()
+        strokeWeight(2);
+        stroke(255, 0, 0);
+        point(i.pos.z * blockSize, (blockCount - ground.groundHeight(i.pos) - 5) * blockSize)
+        pop()
+    }
+    let expanded = tickSequenceContainer.getElementsByClassName("show");
+    expanded = expanded.length > 0 ? expanded[0] : undefined;
+    if (expanded) {
+        let i = tickSequence[expanded.parentElement.id];
+        fill(255, 0, 0, 150);
         noStroke();
-        rect(i.pos.z * blockSize - 0.3, (blockCount - i.pos.y - 5) * blockSize - 0.3, 0.6, 0.6)
-        ground.groundHeight(i.pos)
+        rect((i.pos.z - 0.3) * blockSize, (blockCount - i.pos.y - 0.3 - 5) * blockSize, 0.6 * blockSize, 0.6 * blockSize)
+        stroke(255);
+        fill(255);
+        point(i.pos.z * blockSize, (blockCount - i.pos.y - 5) * blockSize);
     }
     strokeWeight(1);
 }
@@ -191,8 +203,43 @@ function getTicksAsDivs(ticks) {
 }
 
 function getTickAsDiv(index, tick) {
-    let row = document.createElement("div");
-    row.setAttribute("class", "row");
+    let container = createEle("div", { "class": "card" });
+
+    let button = createEle("button", {
+        "class": "btn collapsed",
+        "type": "button",
+        "data-toggle": "collapse",
+        "data-target": "#collapse" + index,
+        "aria-expanded": "false",
+        "aria-controls": "collapse" + index,
+        "id": "button" + index,
+    });
+    container.appendChild(button);
+
+    let buttonText = createEle("div", { "class": "d-flex justify-content-around align-items-center" });
+    button.appendChild(buttonText);
+
+    let buttonTextTickcount = createEle("p", { "class": "mb-0" });
+    buttonTextTickcount.innerText = (index - -1) + ". Tick";
+    buttonText.appendChild(buttonTextTickcount);
+
+    let buttonTextCoords = createEle("p", { "class": "mb-0" });
+    buttonTextCoords.innerText = Tick.vectorToStringSmall(tick);
+    buttonText.appendChild(buttonTextCoords);
+
+    let card = createEle("div", {
+        "id": "collapse" + index,
+        "class": "collapse",
+        "aria-labelledby": "button" + index,
+        "data-parent": "#tickSequenceContainer",
+    })
+    container.appendChild(card);
+
+    let cardBody = createEle("div", { "class": "card-body" });
+    card.appendChild(cardBody);
+
+    let row = createEle("div", { "class": "row" })
+    cardBody.appendChild(row);
 
     let colTickIndex = createEle("div", { "class": "col-2" });
     let tickIndex = document.createElement("p");
@@ -206,7 +253,7 @@ function getTickAsDiv(index, tick) {
     colCoords.appendChild(coords);
 
     row.appendChild(colCoords);
-    return row;
+    return container;
 }
 
 function createEle(type, options) {
