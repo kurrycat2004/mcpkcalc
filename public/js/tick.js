@@ -23,12 +23,20 @@ class Tick {
         this.doReload = true;
     }
 
+    static fromInputs(lastTick, initialPosition, facing = 0, inputs = "", strafe = false){
+        let jumpTick = inputs.includes(" ");
+        let movementType = inputs.includes("shift") ? "sneak" : (inputs.includes("ctrl") ? "sprint" : "walk");
+        let keys = [...inputs].filter(e => "wasd".includes(e)).join("");
+        if(keys == "") movementType = "stop";
+        return new Tick(lastTick, facing, movementType, keys, strafe, jumpTick, "default", initialPosition);
+    }
+
     static vectorToStringSmall(vector) {
         return `X: ${vector.pos.x.toFixed(3)}, Y: ${vector.pos.y.toFixed(3)}, Z: ${vector.pos.z.toFixed(3)}`;
     }
 
     static vectorToString(vector) {
-        return `X: ${vector.pos.x}\nY: ${vector.pos.y}\nZ: ${vector.pos.z}`;
+        return `X: ${vector.pos.x.toFixed(16)}, \nY: ${vector.pos.y.toFixed(16)}, \nZ: ${vector.pos.z.toFixed(16)}`;
     }
 
     static stopTick(initialPosition) {

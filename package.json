@@ -1,0 +1,25 @@
+{
+  "name": "mcpkcalc",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kurrycat2004/mcpkcalc.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kurrycat2004/mcpkcalc/issues"
+  },
+  "homepage": "https://github.com/kurrycat2004/mcpkcalc#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "jquery": "^3.5.1",
+    "popper.js": "^1.16.1"
+  }
+}

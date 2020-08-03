@@ -5,17 +5,18 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>MCPK Calculator</title>
-    <link rel="stylesheet" href="./libs/bootstrap/css/bootstrap.min.css">
-    <link href="style.css" rel="stylesheet" type="text/css" />
-    <script src="./libs/p5/p5.js"></script>
-    <script src="./libs/p5/addons/p5.sound.min.js"></script>
+    <link rel="stylesheet" href="/libs/bootstrap/css/bootstrap.min.css">
+    <link href="/index/css/style.css" rel="stylesheet" type="text/css" />
+    <script src="/libs/p5/p5.js"></script>
+    <script src="/libs/p5/addons/p5.sound.min.js"></script>
 
-    <script src="exportCSV.js"></script>
-    <script src="block.js"></script>
-    <script src="ground.js"></script>
-    <script src="tick.js"></script>
-    <script src="tickSequence.js"></script>
-    <script src="script.js"></script>
+    <script src="/js/exportCSV.js"></script>
+    <script src="/js/block.js"></script>
+    <script src="/js/ground.js"></script>
+    <script src="/js/tick.js"></script>
+    <script src="/js/tickSequence.js"></script>
+
+    <script src="/index/js/script.js"></script>
 </head>
 
 <body>
@@ -148,21 +149,7 @@
                 </div>
             </div>
         </div>
-        <div class="container-fluid mt-3" id="simulation">
-            <div class="row">
-                <div class="col">
-                    <div id="canvas">
-
-                    </div>
-                </div>
-                <div class="col" style="overflow-y: scroll; height: 600px;">
-                    <div class="accordion" id="tickSequenceContainer">
-                    </div>
-                </div>
-            </div>
-        </div>
-      </div>
-      <p id="crappycounter">0</p>    <button onclick="tickSequence.download();document.getElementById('crappycounter').innerText -= -1;">Download</button>
+    </div>
     <script src="./libs//jQuery/js/jquery-3.5.1.slim.min.js"></script>
     <script src="./libs/Popper/js/popper.js"></script>
     <script src="./libs/bootstrap/js/bootstrap.min.js"></script>

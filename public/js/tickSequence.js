@@ -64,6 +64,23 @@ class TickSequence extends Array {
         )
     }
 
+    pushITick(facing = 0, inputs = "", strafe = false){
+        this.push(
+            Tick.fromInputs(
+                this.length > 0 ? this[this.length - 1] : undefined,
+                this.initialPosition,
+                facing,
+                inputs,
+                strafe
+            )
+        )
+    }
+
+    pushITicks(count = 1, facing, inputs, strafe){
+        for (let i = 0; i < count; i++)
+            this.pushITick(facing, inputs, strafe);
+    }
+
     pushTicks(count = 1, facing = 0, movementType = "sprint", keys = "w", strafe = false, groundType = "default") {
         for (let i = 0; i < count; i++)
             this.pushTick(facing, movementType, keys, strafe, false, groundType);
