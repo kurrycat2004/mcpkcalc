@@ -134,7 +134,10 @@ class Tick {
 
         let velX = lastTick.vel.x * lastTick.groundSlipperiness * 0.91;
         let velZ = lastTick.vel.z * lastTick.groundSlipperiness * 0.91;
-
+        
+        velX = Math.abs(velX) < (version == "1.8" ? 0.005 : 0.003) ? 0 : velX;
+        velZ = Math.abs(velZ) < (version == "1.8" ? 0.005 : 0.003) ? 0 : velZ;
+        
         if (this.onGround) {
             let acc = 0.1 * this._M() * this._E() * Math.pow(0.6 / this.groundSlipperiness, 3);
             velX += acc * Math.sin(this.direction);

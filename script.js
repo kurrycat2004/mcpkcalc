@@ -1,4 +1,4 @@
-const version = "1.9";
+const version = "1.8";
 const jumpBoost = 0;
 const speed = 0;
 const slowness = 0;
@@ -13,6 +13,7 @@ let initialPositionInput;
 let tickSequenceContainer;
 
 let Canvas;
+let mousePressPos = { x:-1, y:-1 }
 
 let blocks = [];
 
@@ -38,17 +39,77 @@ function setup() {
     tickSequence.pushTick(0, "sprint", "w", false, true);
     tickSequence.pushTicks(11, 0, "sprint", "w", false); */
 
-    //rex bwmm
+    // //rex bwmm
+    // blocks.push(new Block(1, blockCount - 5, 1, 1));
+    // blocks.push(new Block(6.375, blockCount - 5, 1, 1));
+    // tickSequence = new TickSequence(createVector(0, 0, 2.172));
+    // tickSequence.pushStopTick();
+    // tickSequence.pushTick(0, "walk", "s", false, true, "default");
+    // tickSequence.pushTicks(12, 0, "walk", "s", false, "default");
+    // tickSequence.pushTick(0, "sprint", "wa", true, true, "default");
+    // tickSequence.pushTicks(11, 0, "sprint", "w", false, "default");
+    // tickSequence.pushTick(0, "sprint", "w", false, true);
+    // tickSequence.pushTicks(12, 0, "sprint", "w", true, false);
+    
+    
+    // //rex bwmm 1 shift tick
+    // blocks.push(new Block(1, blockCount - 5, 1, 1));
+    // blocks.push(new Block(7, blockCount - 4, 1, 1));
+    // tickSequence = new TickSequence(createVector(0, 0, 2.2704));
+    // tickSequence.pushStopTick();
+    // tickSequence.pushTick(0, "sneak", "s", false, false);
+    // tickSequence.pushTick(0, "walk", "s", false, true, "default");
+    // tickSequence.pushTicks(12, 0, "walk", "s", false, "default");
+    // tickSequence.pushTick(0, "sprint", "wa", true, true, "default");
+    // tickSequence.pushTicks(11, 0, "sprint", "w", true);
+    // tickSequence.pushTick(0, "sprint", "w", false, true);
+    // tickSequence.pushTicks(14, 0, "sprint", "w", true);
+    
+    /*
+    //rex bwmm 3 strafes
     blocks.push(new Block(1, blockCount - 5, 1, 1));
-    blocks.push(new Block(6.375, blockCount - 5, 1, 1));
-    tickSequence = new TickSequence(createVector(0, 0, 2.172));
+    blocks.push(new Block(7, blockCount - 4, 1, 1));
+    tickSequence = new TickSequence(createVector(0, 0, 2.1855));
     tickSequence.pushStopTick();
-    tickSequence.pushTick(0, "walk", "s", false, true, "default");
-    tickSequence.pushTicks(12, 0, "walk", "s", false, "default");
-    tickSequence.pushTick(0, "sprint", "wa", true, true, "default");
-    tickSequence.pushTicks(11, 0, "sprint", "w", false, "default");
+    tickSequence.pushTick(0, "walk", "s", true, true, "default");
+    tickSequence.pushTicks(12, 0, "walk", "s", true, "default");
+    tickSequence.pushTick(1.8, "sprint", "wa", true, true, "default");
+    tickSequence.pushTicks(11, 0, "sprint", "w", true);
     tickSequence.pushTick(0, "sprint", "w", false, true);
-    tickSequence.pushTicks(12, 0, "sprint", "w", true, false);
+    tickSequence.pushTicks(14, 0, "sprint", "w", true, false);
+    */
+    
+    
+    //2.125+.5bm 5-.5 (not working)
+    blocks.push(new Block(0.875, blockCount-5, 0.125, 1));
+    blocks.push(new Block(1, blockCount-5, 1, 1));
+    blocks.push(new Block(2, blockCount-5.5, 1, 0.5));
+    blocks.push(new Block(8, blockCount-5,1,1));
+    tickSequence = new TickSequence(createVector(0,0.5,3.08723));
+    tickSequence.pushStopTick();
+    tickSequence.pushTicks(2, 0, "walk", "s", false);
+    tickSequence.pushTick(0,"walk", "s", false, true);
+    tickSequence.pushTicks(12, 0,"walk","s",false);
+    tickSequence.pushTick(0,"walk","s",false,true);
+    //tickSequence.pushTick(0,"walk","s",false,false)
+    tickSequence.pushTicks(11, 0, "sprint","w",false);
+    tickSequence.pushTick(0, "sprint","w",false,true);
+    tickSequence.pushTicks(9,0,"sprint","w",false)
+    tickSequence.pushTick(0,"sprint","w",false,true);
+    tickSequence.pushTicks(13,0,"sprint","w",true)
+    
+    
+    // //rex bwmm 3 strafes
+    // blocks.push(new Block(1, blockCount - 5, 1, 1));
+    // blocks.push(new Block(7, blockCount - 4, 1, 1));
+    // tickSequence = new TickSequence(createVector(0, 0, 2.187));
+    // tickSequence.pushStopTick();
+    // tickSequence.pushTick(0, "walk", "s", false, true, "default");
+    // tickSequence.pushTicks(12, 0, "walk", "s", true, "default");
+    // tickSequence.pushTick(0, "sprint", "wa", true, true, "default");
+    // tickSequence.pushTicks(11, 0, "sprint", "w", true);
+    // tickSequence.pushTick(0, "sprint", "w", false, true);
+    // tickSequence.pushTicks(14, 0, "sprint", "w", true, false);
 
     /* tickSequence = new TickSequence();
     tickSequence.push(Tick.landTick(createVector(0, 0, 0.1105)));
@@ -80,6 +141,8 @@ function setup() {
     tickSequence.pushTicks(12, 0, "sprint", "w", true, false); */
 
     console.log(tickSequence);
+    
+    
 
     document.getElementById("calculate").onclick = () => {
         document.getElementById("solution").innerText = "";
@@ -129,7 +192,7 @@ function setup() {
 
 function draw() {
     if (tickSequence.initialPosition.z != parseFloat(initialPositionInput.value())) {
-        tickSequence.updateInitialPosition(createVector(0, 0, parseFloat(initialPositionInput.value())));
+        tickSequence.updateInitialPosition(createVector(0, tickSequence.initialPosition.y, parseFloat(initialPositionInput.value())));
         console.log("update")
         tickSequenceContainer.innerHTML = "";
         for (let td of getTicksAsDivs(tickSequence)) {
@@ -181,6 +244,11 @@ function keyPressed() {
 }
 
 function mousePressed() {
+    mousePressPos = {mouseX, mouseY};
+}
+
+function mouseReleased() {
+    if(Math.abs(mousePressPos.x-mouseX)>10 || Math.abs(mousePressPos.y-mouseY)>10) return;
     if (mouseX > width || mouseX < 0 || mouseY > height || mouseY < 0) return;
     let posX = Math.floor(mouseX / blockSize);
     let posY = Math.floor(mouseY / blockSize);
