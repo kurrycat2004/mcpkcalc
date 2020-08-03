@@ -10,25 +10,34 @@ let tickSequence;
 let initialPositionSlider;
 let initialPositionInput;
 
+let cam;
+let camSpeed = 1;
+let pointerLock;
+
 let tickSequenceContainer;
 
 let Canvas;
-let mousePressPos = { x:-1, y:-1 }
+let mousePressPos = { x: -1, y: -1 }
 
 let blocks = [];
 
 let params = window.location.pathname.split("/");
-params.splice(0,2);
-if(params[0] == "") params = [];
+params.splice(0, 2);
+if (params[0] == "") params = [];
 console.log(params);
 params.map(p => decodeURIComponent(p));
 
 function setup() {
-    Canvas = createCanvas(canvasSize, canvasSize);
+    Canvas = createCanvas(canvasSize, canvasSize, WEBGL);
     Canvas.parent("canvas")
-    for (let i = 0; i < blockCount; i++) blocks.push(new Block(i, blockCount - 1, 1))
+    for (let i = 0; i < blockCount; i++) blocks.push(new Block(0, blockCount - 1, i, 1))
     ground = new Ground();
     background(0);
+
+    cam = new Camera(-13 * blockSize, (blockCount / 2) * blockSize, (blockCount / 2) * blockSize, HALF_PI, HALF_PI);
+    cam.updateCamera();
+
+    pointerLock = new PointerLock(document, Canvas.elt, (x, y) => { cam.mouseMoved(-x, y); });
 
     console.log(params);
 
@@ -45,8 +54,8 @@ function setup() {
     tickSequence.pushTicks(11, 0, "sprint", "w", false); */
 
     // //rex bwmm
-    // blocks.push(new Block(1, blockCount - 5, 1, 1));
-    // blocks.push(new Block(6.375, blockCount - 5, 1, 1));
+    // blocks.push(new Block(0, 1, blockCount - 5, 1, 1));
+    // blocks.push(new Block(0, 6.375, blockCount - 5, 1, 1));
     // tickSequence = new TickSequence(createVector(0, 0, 2.172));
     // tickSequence.pushStopTick();
     // tickSequence.pushTick(0, "walk", "s", false, true, "default");
@@ -55,11 +64,11 @@ function setup() {
     // tickSequence.pushTicks(11, 0, "sprint", "w", false, "default");
     // tickSequence.pushTick(0, "sprint", "w", false, true);
     // tickSequence.pushTicks(12, 0, "sprint", "w", true, false);
-    
-    
+
+
     // //rex bwmm 1 shift tick
-    // blocks.push(new Block(1, blockCount - 5, 1, 1));
-    // blocks.push(new Block(7, blockCount - 4, 1, 1));
+    // blocks.push(new Block(0, 1, blockCount - 5, 1, 1));
+    // blocks.push(new Block(0, 7, blockCount - 4, 1, 1));
     // tickSequence = new TickSequence(createVector(0, 0, 2.2704));
     // tickSequence.pushStopTick();
     // tickSequence.pushTick(0, "sneak", "s", false, false);
@@ -69,11 +78,11 @@ function setup() {
     // tickSequence.pushTicks(11, 0, "sprint", "w", true);
     // tickSequence.pushTick(0, "sprint", "w", false, true);
     // tickSequence.pushTicks(14, 0, "sprint", "w", true);
-    
+
     /*
     //rex bwmm 3 strafes
-    blocks.push(new Block(1, blockCount - 5, 1, 1));
-    blocks.push(new Block(7, blockCount - 4, 1, 1));
+    blocks.push(new Block(0, 1, blockCount - 5, 1, 1));
+    blocks.push(new Block(0, 7, blockCount - 4, 1, 1));
     tickSequence = new TickSequence(createVector(0, 0, 2.1855));
     tickSequence.pushStopTick();
     tickSequence.pushTick(0, "walk", "s", true, true, "default");
@@ -83,13 +92,13 @@ function setup() {
     tickSequence.pushTick(0, "sprint", "w", false, true);
     tickSequence.pushTicks(14, 0, "sprint", "w", true, false);
     */
-    
-    
+
+
     /* //2.125+.5bm 5-.5
-    blocks.push(new Block(0.875, blockCount-5, 0.125, 1));
-    blocks.push(new Block(1, blockCount-5, 1, 1));
-    blocks.push(new Block(2, blockCount-5.5, 1, 0.5));
-    blocks.push(new Block(8, blockCount-5,1,1));
+    blocks.push(new Block(0, 0.875, blockCount-5, 0.125, 1));
+    blocks.push(new Block(0, 1, blockCount-5, 1, 1));
+    blocks.push(new Block(0, 2, blockCount-5.5, 1, 0.5));
+    blocks.push(new Block(0, 8, blockCount-5, 1,1));
     tickSequence = new TickSequence(createVector(0,0.5,3.08723));
     tickSequence.pushStopTick();
     tickSequence.pushTicks(2, 0, "walk", "s", false);
@@ -103,11 +112,11 @@ function setup() {
     tickSequence.pushTicks(13,0,"sprint","w",true) */
 
     //2.125+.5bm 5-.5
-    blocks.push(new Block(0.875, blockCount-5, 0.125, 1));
-    blocks.push(new Block(1, blockCount-5, 1, 1));
-    blocks.push(new Block(2, blockCount-5.5, 1, 0.5));
-    blocks.push(new Block(8, blockCount-5,1,1));
-    tickSequence = new TickSequence(createVector(0,0.5,3.08723));
+    blocks.push(new Block(0, blockCount - 5, 0.875, 1, 1, 0.125));
+    blocks.push(new Block(0, blockCount - 5, 1, 1, 1));
+    blocks.push(new Block(0, blockCount - 5.5, 2, 1, 0.5));
+    blocks.push(new Block(0, blockCount - 5, 8, 1, 1));
+    tickSequence = new TickSequence(createVector(0.5, 0.5, 3.08723));
     tickSequence.pushStopTick();
     tickSequence.pushITicks(2, 0, "s");
     tickSequence.pushITick(0, " s");
@@ -118,11 +127,11 @@ function setup() {
     tickSequence.pushITicks(9, 0, "ctrlw")
     tickSequence.pushITick(0, " ctrlw");
     tickSequence.pushITicks(13, 0, "ctrlw", true)
-    
-    
+
+
     // //rex bwmm 3 strafes
-    // blocks.push(new Block(1, blockCount - 5, 1, 1));
-    // blocks.push(new Block(7, blockCount - 4, 1, 1));
+    // blocks.push(new Block(1, blockCount - 5, 0, 1, 1));
+    // blocks.push(new Block(7, blockCount - 4, 0, 1, 1));
     // tickSequence = new TickSequence(createVector(0, 0, 2.187));
     // tickSequence.pushStopTick();
     // tickSequence.pushTick(0, "walk", "s", false, true, "default");
@@ -148,8 +157,8 @@ function setup() {
 
 
     /* //3bm 5-.5 strat - start at .98 
-    for (let i = 1; i < 4; i++) blocks.push(new Block(i, blockCount - 5, 1));
-    blocks.push(new Block(9, blockCount - 5 + 0.5, 1, 0.5))
+    for (let i = 1; i < 4; i++) blocks.push(new Block(i, blockCount - 5, 0, 1));
+    blocks.push(new Block(9, blockCount - 5 + 0.5, 0, 1, 0.5))
     tickSequence = new TickSequence(createVector(0, 0, 0.98));
     tickSequence.pushStopTick();
     tickSequence.pushTick(0, "walk", "s", false, false);
@@ -174,6 +183,43 @@ function setup() {
 }
 
 function draw() {
+    if (mouseX > 0 && mouseX < width && mouseY > 0 && mouseY < height) {
+        cam.updateCamera();
+    }
+    if (!pointerLock.locked) {
+        cam.rotate();
+    }
+
+    if (pointerLock.locked) {
+        let xKeys = 0;
+        let zKeys = 0;
+        let yKeys = 0;
+
+        if (keyIsDown(87)) zKeys -= 1; //w
+        if (keyIsDown(65)) xKeys += 1; //a
+        if (keyIsDown(83)) zKeys += 1; //s
+        if (keyIsDown(68)) xKeys -= 1; //d
+        if (keyIsDown(32)) yKeys -= 1; //space
+        if (keyIsDown(16)) yKeys += 1; //shift
+
+        if (xKeys != 0 || zKeys != 0) {
+            let strafe = (abs(xKeys) + abs(zKeys));
+
+            let off =
+                ((zKeys + 1 * abs(zKeys)) * HALF_PI) +
+                (strafe == 2 ? -QUARTER_PI * zKeys * xKeys : (xKeys * HALF_PI));
+
+            cam.move(
+                sin(cam.yaw + off) * 3 * camSpeed,
+                0,
+                cos(cam.yaw + off) * 3 * camSpeed,
+            )
+        }
+        if (yKeys != 0) {
+            cam.move(0, 3 * yKeys * camSpeed, 0);
+        }
+    }
+
     if (tickSequence.initialPosition.z != parseFloat(initialPositionInput.value())) {
         tickSequence.updateInitialPosition(createVector(0, tickSequence.initialPosition.y, parseFloat(initialPositionInput.value())));
         tickSequenceContainer.innerHTML = "";
@@ -183,27 +229,29 @@ function draw() {
     }
     background(0);
     stroke(255);
-    fill(0);
+    noFill();
     for (let i = 0; i < blockCount; i++) {
         for (let j = 0; j < blockCount; j++) {
-            rect(i * blockSize, j * blockSize, blockSize, blockSize);
+            push();
+            translate(blockSize + 1, 0, 0);
+            rotateY(-HALF_PI);
+            rect(0, j * blockSize, i * blockSize, blockSize, blockSize);
+            pop();
         }
     }
     for (let b of blocks) {
-        b.show();
+        b.show(true);
     }
     stroke(255);
     fill(255);
-    strokeWeight(5);
     for (let i of tickSequence) {
+        strokeWeight(5);
         stroke(255);
         fill(255);
-        point(i.pos.z * blockSize, (blockCount - i.pos.y - 5) * blockSize);
-        push()
+        point(i.pos.x * blockSize, (blockCount - i.pos.y - 5) * blockSize, i.pos.z * blockSize);
         strokeWeight(2);
         stroke(255, 0, 0);
-        point(i.pos.z * blockSize, (blockCount - ground.groundHeight(i.pos) - 5) * blockSize)
-        pop()
+        point(i.pos.x * blockSize, (blockCount - ground.groundHeight(i.pos) - 5) * blockSize, i.pos.z * blockSize)
     }
     let expanded = tickSequenceContainer.getElementsByClassName("show");
     expanded = expanded.length > 0 ? expanded[0] : undefined;
@@ -211,32 +259,34 @@ function draw() {
         let i = tickSequence[expanded.parentElement.id];
         fill(255, 0, 0, 150);
         noStroke();
-        rect((i.pos.z - 0.3) * blockSize, (blockCount - i.pos.y - 0.3 - 5) * blockSize, 0.6 * blockSize, 0.6 * blockSize)
+        rect((i.pos.x - 0.3) * blockSize, (blockCount - i.pos.y - 0.3 - 5) * blockSize, (i.pos.z - 0.3) * blockSize, 0.6 * blockSize, 0.6 * blockSize)
         stroke(255);
         fill(255);
-        point(i.pos.z * blockSize, (blockCount - i.pos.y - 5) * blockSize);
+        point(i.pos.x * blockSize, (blockCount - i.pos.y - 5) * blockSize, i.pos.z * blockSize);
     }
     strokeWeight(1);
 }
-function keyPressed() {
-    if (key == " ") console.log(tickSequence);
-}
+/* function keyPressed() {
+    console.log(keyCode)
+    //if (key == " ") console.log(tickSequence);
+} */
 
 function mousePressed() {
-    mousePressPos = {mouseX, mouseY};
+    if (mouseX > 0 && mouseX < width && mouseY > 0 && mouseY < height)
+        pointerLock.lock();
 }
-
+/* 
 function mouseReleased() {
-    if(Math.abs(mousePressPos.x-mouseX)>10 || Math.abs(mousePressPos.y-mouseY)>10) return;
+    if (Math.abs(mousePressPos.x - mouseX) > 10 || Math.abs(mousePressPos.y - mouseY) > 10) return;
     if (mouseX > width || mouseX < 0 || mouseY > height || mouseY < 0) return;
     let posX = Math.floor(mouseX / blockSize);
     let posY = Math.floor(mouseY / blockSize);
     let b = blocks.findIndex(e => e.pos.x == posX && e.pos.y == posY);
-    if (b < 0) blocks.push(new Block(posX, posY, 1));
+    if (b < 0) blocks.push(new Block(posX, posY, 0, 1));
     else blocks.splice(b, 1);
     tickSequence.reload();
     return false;
-}
+} */
 
 function getTicksAsDivs(ticks) {
     let divs = [];
@@ -304,17 +354,17 @@ function getTickAsDiv(index, tick) {
     );
 
     cardBody.appendChild(
-        createEle("div", {"class": "row"}, [
-            createEle("div", {"class": "col"}, [
+        createEle("div", { "class": "row" }, [
+            createEle("div", { "class": "col" }, [
                 createEle("p", {}, [], (t) => {
                     let inp = tick.getInputs();
                     let keys = inp.keys;
                     keys = keys.map(e => {
-                        if(e == " ") return "space";
+                        if (e == " ") return "space";
                         return e;
                     });
                     keys = keys.join(", ");
-                    if(keys == "") keys = "NONE";
+                    if (keys == "") keys = "NONE";
                     let fac = inp.facing;
                     fac += "°";
                     t.innerText = "Inputs: " + keys + "\nFacing: " + fac;
@@ -330,7 +380,7 @@ function createEle(type, options, childs = [], editCallback = ((t) => t)) {
     let t = document.createElement(type);
     if (options == undefined) return t;
     for (let k in options) t.setAttribute(k, options[k]);
-    for(let i of childs) t.appendChild(i);
+    for (let i of childs) t.appendChild(i);
     editCallback(t);
     return t;
 }

@@ -9,8 +9,8 @@ class Ground {
     groundHeight(pos) {
         if (pos != undefined) {
             let highest = blocks.reduce((a, b) => {
-                if (!(pos.z + 0.3 > a.pos.x && pos.z - 0.3 < a.pos.x + a.sizeX)) return b;
-                if (!(pos.z + 0.3 > b.pos.x && pos.z - 0.3 < b.pos.x + a.sizeX)) return a;
+                if (!(pos.z + 0.3 > a.pos.z && pos.z - 0.3 < a.pos.z + a.size.z && pos.x + 0.3 > a.pos.x && pos.x - 0.3 < a.pos.x + a.size.x)) return b;
+                if (!(pos.z + 0.3 > b.pos.z && pos.z - 0.3 < b.pos.z + a.size.z && pos.x + 0.3 > b.pos.x && pos.x - 0.3 < b.pos.x + b.size.x)) return a;
                 if (a.pos.y < b.pos.y) return a;
                 return b;
             });

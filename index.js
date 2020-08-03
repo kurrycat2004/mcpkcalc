@@ -3,16 +3,16 @@ var app = express();
 
 app.use(express.static('public'));
 
-app.get('/', function(req, res) {
-  res.sendFile('/home/runner/mcpkcalc/public/index/index.html');
+app.get('/', function (req, res) {
+  res.sendFile(__dirname + '/public/index/index.html');
 });
 
-app.get('/s/*', function(req,res) {
-  res.sendFile('/home/runner/mcpkcalc/public/s/index.html');
+app.get('/s/*', function (req, res) {
+  res.sendFile(__dirname + '/public/s/index.html');
 });
 
 var server = require('http').Server(app);
 
-server.listen(function() {
+server.listen(function () {
   console.log(`Listening on ${server.address().port}`);
 });
