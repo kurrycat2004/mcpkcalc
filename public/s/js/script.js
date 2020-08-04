@@ -30,7 +30,7 @@ params.map(p => decodeURIComponent(p));
 function setup() {
     Canvas = createCanvas(canvasSize, canvasSize, WEBGL);
     Canvas.parent("canvas")
-    for (let i = 0; i < blockCount; i++) blocks.push(new Block(0, blockCount - 1, i, 1))
+    for (let i = 0; i < blockCount; i++) { blocks.push(new Block(0, blockCount - 1, i, 1)) }
     ground = new Ground();
     background(0);
 
@@ -230,7 +230,7 @@ function draw() {
     background(0);
     stroke(255);
     noFill();
-    for (let i = 0; i < blockCount; i++) {
+    for (let i = 0; i <= blockCount; i++) {
         for (let j = 0; j < blockCount; j++) {
             push();
             translate(blockSize + 1, 0, 0);
@@ -245,13 +245,17 @@ function draw() {
     stroke(255);
     fill(255);
     for (let i of tickSequence) {
-        strokeWeight(5);
         stroke(255);
         fill(255);
-        point(i.pos.x * blockSize, (blockCount - i.pos.y - 5) * blockSize, i.pos.z * blockSize);
-        strokeWeight(2);
+        push();
+        translate(i.pos.x * blockSize, (blockCount - i.pos.y - 5) * blockSize, i.pos.z * blockSize);
+        sphere(1);
+        pop();
         stroke(255, 0, 0);
-        point(i.pos.x * blockSize, (blockCount - ground.groundHeight(i.pos) - 5) * blockSize, i.pos.z * blockSize)
+        push();
+        translate(i.pos.x * blockSize, (blockCount - ground.groundHeight(i.pos) - 5) * blockSize, i.pos.z * blockSize);
+        sphere(1);
+        pop();
     }
     let expanded = tickSequenceContainer.getElementsByClassName("show");
     expanded = expanded.length > 0 ? expanded[0] : undefined;
