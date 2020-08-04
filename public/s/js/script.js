@@ -221,7 +221,7 @@ function draw() {
     }
 
     if (tickSequence.initialPosition.z != parseFloat(initialPositionInput.value())) {
-        tickSequence.updateInitialPosition(createVector(0, tickSequence.initialPosition.y, parseFloat(initialPositionInput.value())));
+        tickSequence.updateInitialPosition(createVector(0.5, tickSequence.initialPosition.y, parseFloat(initialPositionInput.value())));
         tickSequenceContainer.innerHTML = "";
         for (let td of getTicksAsDivs(tickSequence)) {
             tickSequenceContainer.appendChild(td);
