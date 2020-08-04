@@ -10,9 +10,12 @@ let tickSequence;
 let initialPositionSlider;
 let initialPositionInput;
 
-let cam;
+let player;
 let camSpeed = 1;
 let pointerLock;
+
+let rotating = true;
+let rotatingText;
 
 let tickSequenceContainer;
 
@@ -28,24 +31,40 @@ console.log(params);
 params.map(p => decodeURIComponent(p));
 
 function setup() {
+
+    document.oncontextmenu = e => {
+        if (mouseX <= width && mouseX >= 0 && mouseY <= height && mouseY >= 0) return false;
+    }
+
     Canvas = createCanvas(canvasSize, canvasSize, WEBGL);
-    Canvas.parent("canvas")
+    Canvas.parent("canvas");
+
+    Canvas.elt.ondblclick = function (e) {
+        if (onCanvas() && !pointerLock.locked && mouseButton == LEFT) {
+            /*  if (window.getSelection) window.getSelection().removeAllRanges();
+             else if (document.selection) document.selection.empty(); */
+            pointerLock.lock();
+            return false;
+        }
+    }
+
+    rotatingText = new TextEle(`Rotating: ${rotating} (Press mouse wheel to toggle)`, width / 20, height / 50, false);
+    rotatingText.addToDom();
+    rotatingText.elt.ondblclick = Canvas.elt.ondblclick;
+
+    pointerLock = new PointerLock(document, Canvas.elt, (x, y) => { player.mouseMoved(-x, y); });
+
     for (let i = 0; i < blockCount; i++) { blocks.push(new Block(0, blockCount - 1, i, 1)) }
     ground = new Ground();
-    background(0);
 
-    cam = new Camera(-13 * blockSize, (blockCount / 2) * blockSize, (blockCount / 2) * blockSize, HALF_PI, HALF_PI);
-    cam.updateCamera();
-
-    pointerLock = new PointerLock(document, Canvas.elt, (x, y) => { cam.mouseMoved(-x, y); });
+    player = new Player(-13 * blockSize, (blockCount / 2) * blockSize, (blockCount / 2) * blockSize, HALF_PI, HALF_PI);
+    player.updateCamera();
 
     console.log(params);
 
     tickSequenceContainer = document.getElementById("tickSequenceContainer");
 
-    document.oncontextmenu = e => {
-        if (mouseX <= width && mouseX >= 0 && mouseY <= height && mouseY >= 0) return false;
-    }
+
 
     /* //Jam
     tickSequence = new TickSequence(createVector(0, 0, 1));
@@ -184,10 +203,10 @@ function setup() {
 
 function draw() {
     if (mouseX > 0 && mouseX < width && mouseY > 0 && mouseY < height) {
-        cam.updateCamera();
+        player.updateCamera();
     }
-    if (!pointerLock.locked) {
-        cam.rotate();
+    if (!pointerLock.locked && rotating) {
+        player.rotate();
     }
 
     if (pointerLock.locked) {
@@ -195,12 +214,15 @@ function draw() {
         let zKeys = 0;
         let yKeys = 0;
 
+        let slowMode = 1;
+
         if (keyIsDown(87)) zKeys -= 1; //w
         if (keyIsDown(65)) xKeys += 1; //a
         if (keyIsDown(83)) zKeys += 1; //s
         if (keyIsDown(68)) xKeys -= 1; //d
         if (keyIsDown(32)) yKeys -= 1; //space
         if (keyIsDown(16)) yKeys += 1; //shift
+        if (yKeys == 0 && keyIsDown(32)) slowMode = 0.2;
 
         if (xKeys != 0 || zKeys != 0) {
             let strafe = (abs(xKeys) + abs(zKeys));
@@ -209,14 +231,14 @@ function draw() {
                 ((zKeys + 1 * abs(zKeys)) * HALF_PI) +
                 (strafe == 2 ? -QUARTER_PI * zKeys * xKeys : (xKeys * HALF_PI));
 
-            cam.move(
-                sin(cam.yaw + off) * 3 * camSpeed,
+            player.move(
+                sin(player.yaw + off) * 5 * camSpeed * slowMode,
                 0,
-                cos(cam.yaw + off) * 3 * camSpeed,
+                cos(player.yaw + off) * 5 * camSpeed * slowMode,
             )
         }
         if (yKeys != 0) {
-            cam.move(0, 3 * yKeys * camSpeed, 0);
+            player.move(0, 3 * yKeys * camSpeed, 0);
         }
     }
 
@@ -230,23 +252,23 @@ function draw() {
     background(0);
     stroke(255);
     noFill();
-    for (let i = 0; i <= blockCount; i++) {
-        for (let j = 0; j < blockCount; j++) {
-            push();
-            translate(blockSize + 1, 0, 0);
-            rotateY(-HALF_PI);
-            rect(0, j * blockSize, i * blockSize, blockSize, blockSize);
-            pop();
+    if (pointerLock.locked || onCanvas()) {
+        for (let i = 0; i <= blockCount; i++) {
+            for (let j = 0; j < blockCount; j++) {
+                push();
+                translate(blockSize + 1, 0, 0);
+                rotateY(-HALF_PI);
+                rect(0, j * blockSize, i * blockSize, blockSize, blockSize);
+                pop();
+            }
         }
     }
     for (let b of blocks) {
         b.show(true);
     }
-    stroke(255);
-    fill(255);
+    noFill();
     for (let i of tickSequence) {
-        stroke(255);
-        fill(255);
+        stroke(220);
         push();
         translate(i.pos.x * blockSize, (blockCount - i.pos.y - 5) * blockSize, i.pos.z * blockSize);
         sphere(1);
@@ -254,7 +276,7 @@ function draw() {
         stroke(255, 0, 0);
         push();
         translate(i.pos.x * blockSize, (blockCount - ground.groundHeight(i.pos) - 5) * blockSize, i.pos.z * blockSize);
-        sphere(1);
+        sphere(0.8);
         pop();
     }
     let expanded = tickSequenceContainer.getElementsByClassName("show");
@@ -262,13 +284,11 @@ function draw() {
     if (expanded) {
         let i = tickSequence[expanded.parentElement.id];
         stroke(0, 255, 0, 150);
-        fill(0, 255, 0, 150);
         push();
         translate(i.pos.x * blockSize, (blockCount - i.pos.y - 5) * blockSize, i.pos.z * blockSize);
         sphere(4);
         pop();
     }
-    strokeWeight(1);
 }
 /* function keyPressed() {
     console.log(keyCode)
@@ -281,9 +301,29 @@ function mouseWheel(event) {
     }
 }
 
+function mouseDragged() {
+    if (mouseButton == LEFT && !pointerLock.locked && !rotating) {
+        let xOff = mouseX - pmouseX;
+        let yOff = mouseY - pmouseY;
+
+        let x = 0, z = 0;
+        if (xOff != 0) {
+            x = sin(player.yaw + HALF_PI * (xOff / abs(xOff))) * abs(xOff);
+            z = cos(player.yaw + HALF_PI * (xOff / abs(xOff))) * abs(xOff);
+        }
+        player.move(x, -yOff, z);
+    }
+}
+
+function onCanvas() {
+    return mouseX > 0 && mouseX < width && mouseY > 0 && mouseY < height;
+}
+
 function mousePressed() {
-    if (mouseX > 0 && mouseX < width && mouseY > 0 && mouseY < height)
-        pointerLock.lock();
+    if (onCanvas() && mouseButton == CENTER) {
+        rotating = !rotating;
+        rotatingText.updateText(`Rotating: ${rotating} (Press mouse wheel to toggle)`, false);
+    }
 }
 /* 
 function mouseReleased() {

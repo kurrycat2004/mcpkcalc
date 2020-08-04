@@ -1,5 +1,6 @@
 class Camera {
     static sensitivity = 1;
+    static _mouseSensitivityConstant = 0.002617993877991494;
 
     constructor(x, y, z, pitch, yaw) {
         this.pos = createVector(x, y, z);
@@ -9,8 +10,8 @@ class Camera {
     }
 
     mouseMoved(x, y) {
-        this.yaw += x * 0.002617993877991494 * Camera.sensitivity;
-        this.pitch += y * 0.002617993877991494 * Camera.sensitivity;
+        this.yaw += x * Camera._mouseSensitivityConstant * Camera.sensitivity;
+        this.pitch += y * Camera._mouseSensitivityConstant * Camera.sensitivity;
     }
 
     updateDist(){
