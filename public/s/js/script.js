@@ -261,12 +261,12 @@ function draw() {
     expanded = expanded.length > 0 ? expanded[0] : undefined;
     if (expanded) {
         let i = tickSequence[expanded.parentElement.id];
-        fill(255, 0, 0, 150);
-        noStroke();
-        rect((i.pos.x - 0.3) * blockSize, (blockCount - i.pos.y - 0.3 - 5) * blockSize, (i.pos.z - 0.3) * blockSize, 0.6 * blockSize, 0.6 * blockSize)
-        stroke(255);
-        fill(255);
-        point(i.pos.x * blockSize, (blockCount - i.pos.y - 5) * blockSize, i.pos.z * blockSize);
+        stroke(0, 255, 0, 150);
+        fill(0, 255, 0, 150);
+        push();
+        translate(i.pos.x * blockSize, (blockCount - i.pos.y - 5) * blockSize, i.pos.z * blockSize);
+        sphere(4);
+        pop();
     }
     strokeWeight(1);
 }
@@ -274,6 +274,12 @@ function draw() {
     console.log(keyCode)
     //if (key == " ") console.log(tickSequence);
 } */
+
+function mouseWheel(event) {
+    if (pointerLock.locked) {
+        camSpeed = constrain(camSpeed - event.delta / abs(event.delta), 0, 10);
+    }
+}
 
 function mousePressed() {
     if (mouseX > 0 && mouseX < width && mouseY > 0 && mouseY < height)
