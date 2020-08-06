@@ -89,10 +89,10 @@ class Tick {
         let ad = 0;
         for (let k of ks) {
             switch (k) {
-                case "a": ad = -1; break;
-                case "d": ad = 1; break;
-                case "s": ws = -1; break;
                 case "w": ws = 1; break;
+                case "a": ad = 1; break;
+                case "s": ws = -1; break;
+                case "d": ad = -1; break;
             }
         }
         let angle = 0;

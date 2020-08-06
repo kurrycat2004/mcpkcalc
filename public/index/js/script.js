@@ -6,14 +6,8 @@ let ground;
 const blockSize = 40;
 const canvasSize = 600;
 const blockCount = Math.floor(canvasSize / blockSize);
-let tickSequence;
-let initialPositionSlider;
-let initialPositionInput;
-
-let tickSequenceContainer;
 
 let Canvas;
-let mousePressPos = { x:-1, y:-1 }
 
 let blocks = [];
 
@@ -63,14 +57,6 @@ function setup() {
         document.getElementById("parsedDistance").innerText = "";
         let d = parseJump(document.getElementById("jump").value);
         document.getElementById("parsedDistance").innerText = d != undefined ? "X: " + d.x + ",\nY: " + d.y + ",\nZ: " + d.z : "Wrong Format";
-    }
-    initialPositionInput = createInput(tickSequence.initialPosition.z + "");
-    initialPositionSlider = createSlider(0, 1, 0, 0.01);
-    initialPositionSlider.input(() => initialPositionInput.elt.value = initialPositionSlider.value())
-
-    tickSequenceContainer.innerHTML = "";
-    for (let td of getTicksAsDivs(tickSequence)) {
-        tickSequenceContainer.appendChild(td);
     }
 }
 

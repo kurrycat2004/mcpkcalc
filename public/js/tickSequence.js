@@ -17,6 +17,41 @@ class TickSequence extends Array {
         this.push(Tick.stopTick(this.initialPosition));
     }
 
+    static fromStratString(s) {
+        s = s
+            .replace(/sprint/g, "ctrl")
+            .replace(/sneak/g, "shift")
+            .replace(/jump/g, "space")
+            .replace(/bwjam/g, "s+space")
+            .replace(/jam/g, "ctrl+w+space")
+            .replace(/W/g, "(ctrl+w)");
+        let parts = s.split("_");
+        let inputs = [];
+        let errorChar = -1;
+        let i = 0;
+        parts.forEach((v) => {
+            let bsplit = v.split("+");
+            if (bsplit.every(e => ["w", "a", "s", "d", "shift", "space", "ctrl"].includes(e))) {
+                inputs[i] = bsplit;
+                i++;
+                return;
+            }
+            let m;
+            if ((m = v.match(/(?<keys>[a-zA-Z]+|(?<=\()[^\)]+(?=\)))\)?(?<len>\d+)t/)) != null) {
+                console.log(m)
+                let keys = m.groups.keys.split("+");
+                for (let j = 0; j < m.groups.len; j++) {
+                    if (inputs[i + j] == undefined) inputs[i + j] = [];
+                    inputs[i + j].push(...keys);
+                }
+                i -= -m.groups.len;
+            }
+            i++;
+        })
+        console.log(parts);
+        console.log(inputs);
+    }
+
     static autoJump(ticks, initialPosition = undefined) {
         if (ticks < 1) return;
         let tS = new TickSequence(initialPosition);
@@ -64,7 +99,7 @@ class TickSequence extends Array {
         )
     }
 
-    pushITick(facing = 0, inputs = "", strafe = false){
+    pushITick(facing = 0, inputs = "", strafe = false) {
         this.push(
             Tick.fromInputs(
                 this.length > 0 ? this[this.length - 1] : undefined,
@@ -76,7 +111,7 @@ class TickSequence extends Array {
         )
     }
 
-    pushITicks(count = 1, facing, inputs, strafe){
+    pushITicks(count = 1, facing, inputs, strafe) {
         for (let i = 0; i < count; i++)
             this.pushITick(facing, inputs, strafe);
     }

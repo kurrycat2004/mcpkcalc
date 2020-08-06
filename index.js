@@ -13,6 +13,6 @@ app.get('/s/*', function (req, res) {
 
 var server = require('http').Server(app);
 
-server.listen(function () {
+server.listen(3133, function () {
   console.log(`Listening on ${server.address().port}`);
 });

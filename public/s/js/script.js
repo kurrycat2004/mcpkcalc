@@ -27,7 +27,9 @@ let blocks = [];
 let params = window.location.pathname.split("/");
 params.splice(0, 2);
 if (params[0] == "") params = [];
-console.log(params);
+let strat = params[params.length - 1];
+let ts = TickSequence.fromStratString(strat);
+console.log(ts);
 params.map(p => decodeURIComponent(p));
 
 function setup() {
@@ -72,17 +74,17 @@ function setup() {
     tickSequence.pushTick(0, "sprint", "w", false, true);
     tickSequence.pushTicks(11, 0, "sprint", "w", false); */
 
-    // //rex bwmm
-    // blocks.push(new Block(0, 1, blockCount - 5, 1, 1));
-    // blocks.push(new Block(0, 6.375, blockCount - 5, 1, 1));
-    // tickSequence = new TickSequence(createVector(0, 0, 2.172));
-    // tickSequence.pushStopTick();
-    // tickSequence.pushTick(0, "walk", "s", false, true, "default");
-    // tickSequence.pushTicks(12, 0, "walk", "s", false, "default");
-    // tickSequence.pushTick(0, "sprint", "wa", true, true, "default");
-    // tickSequence.pushTicks(11, 0, "sprint", "w", false, "default");
-    // tickSequence.pushTick(0, "sprint", "w", false, true);
-    // tickSequence.pushTicks(12, 0, "sprint", "w", true, false);
+    //rex bwmm
+    blocks.push(new Block(0, blockCount - 5, 1, 1, 1));
+    blocks.push(new Block(0, blockCount - 5, 6.375, 1, 1));
+    tickSequence = new TickSequence(createVector(0.5, 0, 2.172));
+    tickSequence.pushStopTick();
+    tickSequence.pushTick(0, "walk", "s", false, true, "default");
+    tickSequence.pushTicks(12, 0, "walk", "s", false, "default");
+    tickSequence.pushTick(0, "sprint", "wa", true, true, "default");
+    tickSequence.pushTicks(11, 0, "sprint", "w", false, "default");
+    tickSequence.pushTick(0, "sprint", "w", false, true);
+    tickSequence.pushTicks(12, 0, "sprint", "w", true, false);
 
 
     // //rex bwmm 1 shift tick
@@ -130,22 +132,22 @@ function setup() {
     tickSequence.pushTick(0,"sprint","w",false,true);
     tickSequence.pushTicks(13,0,"sprint","w",true) */
 
-    //2.125+.5bm 5-.5
-    blocks.push(new Block(0, blockCount - 5, 0.875, 1, 1, 0.125));
-    blocks.push(new Block(0, blockCount - 5, 1, 1, 1));
-    blocks.push(new Block(0, blockCount - 5.5, 2, 1, 0.5));
-    blocks.push(new Block(0, blockCount - 5, 8, 1, 1));
-    tickSequence = new TickSequence(createVector(0.5, 0.5, 3.08723));
-    tickSequence.pushStopTick();
-    tickSequence.pushITicks(2, 0, "s");
-    tickSequence.pushITick(0, " s");
-    tickSequence.pushITicks(12, 0, "s");
-    tickSequence.pushITick(0, " s");
-    tickSequence.pushITicks(11, 0, "ctrlw");
-    tickSequence.pushITick(0, " ctrlw");
-    tickSequence.pushITicks(9, 0, "ctrlw")
-    tickSequence.pushITick(0, " ctrlw");
-    tickSequence.pushITicks(13, 0, "ctrlw", true)
+    // //2.125+.5bm 5-.5
+    // blocks.push(new Block(0, blockCount - 5, 0.875, 1, 1, 0.125));
+    // blocks.push(new Block(0, blockCount - 5, 1, 1, 1));
+    // blocks.push(new Block(0, blockCount - 5.5, 2, 1, 0.5));
+    // blocks.push(new Block(0, blockCount - 5, 8, 1, 1));
+    // tickSequence = new TickSequence(createVector(0.5, 0.5, 3.08723));
+    // tickSequence.pushStopTick();
+    // tickSequence.pushITicks(2, 0, "s");
+    // tickSequence.pushITick(0, " s");
+    // tickSequence.pushITicks(12, 0, "s");
+    // tickSequence.pushITick(0, " s");
+    // tickSequence.pushITicks(11, 0, "ctrlw");
+    // tickSequence.pushITick(0, " ctrlw");
+    // tickSequence.pushITicks(9, 0, "ctrlw")
+    // tickSequence.pushITick(0, " ctrlw");
+    // tickSequence.pushITicks(13, 0, "ctrlw", true)
 
 
     // //rex bwmm 3 strafes
@@ -302,7 +304,7 @@ function mouseWheel(event) {
 }
 
 function mouseDragged() {
-    if (mouseButton == LEFT && !pointerLock.locked && !rotating) {
+    if (onCanvas() && mouseButton == LEFT && !pointerLock.locked && !rotating) {
         let xOff = mouseX - pmouseX;
         let yOff = mouseY - pmouseY;
 
