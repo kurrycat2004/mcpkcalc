@@ -27,10 +27,12 @@ let blocks = [];
 let params = window.location.pathname.split("/");
 params.splice(0, 2);
 if (params[0] == "") params = [];
+params = params.map(p => decodeURIComponent(p));
 let strat = params[params.length - 1];
-let ts = TickSequence.fromStratString(strat);
-console.log(ts);
-params.map(p => decodeURIComponent(p));
+let ts;
+let coord = parseFloat(params[1]);
+coord = coord != NaN ? coord : 0;
+if (coord < 0) coord += 1.6;
 
 function setup() {
 
@@ -63,6 +65,18 @@ function setup() {
     player.updateCamera();
 
     console.log(params);
+    blocks.push(new Block(0, blockCount - 5, 1, 1, 1));
+    blocks.push(new Block(0, blockCount - 5, 6.375, 1, 1));
+
+
+    ts = TickSequence.fromStratString(strat);
+    if (typeof ts == "number") {
+        console.log(strat.slice(0, ts) + "%c" + strat.slice(ts), "background-color: red;")
+    } else {
+        tickSequence = ts;
+        tickSequence.updateInitialPosition(createVector(0.5, 0, coord + 0.7));
+    }
+    console.log(ts);
 
     tickSequenceContainer = document.getElementById("tickSequenceContainer");
 
@@ -75,16 +89,16 @@ function setup() {
     tickSequence.pushTicks(11, 0, "sprint", "w", false); */
 
     //rex bwmm
-    blocks.push(new Block(0, blockCount - 5, 1, 1, 1));
-    blocks.push(new Block(0, blockCount - 5, 6.375, 1, 1));
-    tickSequence = new TickSequence(createVector(0.5, 0, 2.172));
+    /* blocks.push(new Block(0, blockCount - 5, 1, 1, 1));
+    blocks.push(new Block(0, blockCount - 5, 6.375, 1, 1)); */
+    /* tickSequence = new TickSequence(createVector(0.5, 0, 2.172));
     tickSequence.pushStopTick();
     tickSequence.pushTick(0, "walk", "s", false, true, "default");
     tickSequence.pushTicks(12, 0, "walk", "s", false, "default");
     tickSequence.pushTick(0, "sprint", "wa", true, true, "default");
     tickSequence.pushTicks(11, 0, "sprint", "w", false, "default");
     tickSequence.pushTick(0, "sprint", "w", false, true);
-    tickSequence.pushTicks(12, 0, "sprint", "w", true, false);
+    tickSequence.pushTicks(12, 0, "sprint", "w", true, false); */
 
 
     // //rex bwmm 1 shift tick

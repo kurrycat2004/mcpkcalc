@@ -17,19 +17,43 @@ class TickSequence extends Array {
         this.push(Tick.stopTick(this.initialPosition));
     }
 
-    static fromStratString(s) {
-        s = s
+    static _formatStratString(original) {
+        let s = original
+            .replace(/bwjam(\d+t)/g, "(space+s)$1")
+            .replace(/jam(\d+t)/g, "(ctrl+w+space)$1")
+            .replace(/W(\d+t)/g, "(ctrl+w)$1")
+            .replace(/bwjam/g, "space+s")
+            .replace(/jam/g, "ctrl+w+space")
+            .replace(/W/g, "ctrl+w")
+            .replace(/bwhh([^_]*)(_([^_]*))?/g, (_match, p1, _, p2) => {
+                let st = "s" + p1 + "_s+space";
+                console.log(p2)
+                if (p2 != undefined && p2 != "") st += (p2.startsWith("_") ? "" : "+") + p2;
+                return st;
+            })
+            .replace(/hh([^_]*)(_([^_]*))?/g, (_match, p1, _, p2) => {
+                let st = "ctrl+w" + p1 + "_ctrl+w+space";
+                if (p2 != undefined && p2 != "") st += (p2.startsWith("_") ? "" : "+") + p2;
+                return st;
+            })
+        console.log(s);
+        return s;
+    }
+
+    static fromStratString(original) {
+        let s = original
             .replace(/sprint/g, "ctrl")
             .replace(/sneak/g, "shift")
-            .replace(/jump/g, "space")
-            .replace(/bwjam/g, "s+space")
-            .replace(/jam/g, "ctrl+w+space")
-            .replace(/W/g, "(ctrl+w)");
+            .replace(/jump/g, "space");
+        s = this._formatStratString(s);
+
         let parts = s.split("_");
         let inputs = [];
         let errorChar = -1;
         let i = 0;
-        parts.forEach((v) => {
+        parts.forEach((v, splitTick) => {
+            if (errorChar != -1) return;
+
             let bsplit = v.split("+");
             if (bsplit.every(e => ["w", "a", "s", "d", "shift", "space", "ctrl"].includes(e))) {
                 inputs[i] = bsplit;
@@ -37,19 +61,40 @@ class TickSequence extends Array {
                 return;
             }
             let m;
-            if ((m = v.match(/(?<keys>[a-zA-Z]+|(?<=\()[^\)]+(?=\)))\)?(?<len>\d+)t/)) != null) {
-                console.log(m)
+            if ((m = v.match(/((?<keys>[a-zA-Z]+|(?<=\()[^\)]+(?=\)))\)?(?<len>\d+)t)(?<facing>-?\d{1,3}°)?/)) != null) {
                 let keys = m.groups.keys.split("+");
-                for (let j = 0; j < m.groups.len; j++) {
-                    if (inputs[i + j] == undefined) inputs[i + j] = [];
-                    inputs[i + j].push(...keys);
+                if (keys.every(e => ["w", "a", "s", "d", "shift", "space", "ctrl"].includes(e))) {
+                    for (let j = 0; j < (m.groups.len || 1); j++) {
+                        if (inputs[i + j] == undefined) inputs[i + j] = [];
+                        inputs[i + j].push(...keys);
+                    }
+                    if (m.groups.facing != undefined) {
+                        inputs[i].push(m.groups.facing)
+                        console.log(inputs[i])
+                    }
+                    i -= -m.groups.len;
+                    return;
                 }
-                i -= -m.groups.len;
+                errorChar = original.split("_").splice(0, splitTick).join("_").length + 1;
             }
-            i++;
+            errorChar = original.split("_").splice(0, splitTick).join("_").length + 1;
         })
         console.log(parts);
         console.log(inputs);
+        if (errorChar != -1)
+            return errorChar;
+        else {
+            let ts = new TickSequence();
+            ts.pushStopTick();
+            let a = 0;
+            for (let t of inputs) {
+                let f = t.findIndex(v => v.match(/-?\d{1,3}°/) != null);
+                if (f != -1)
+                    a += parseFloat(t[f].substring(0, t[f].length - 1)) || 0
+                ts.pushITick(a, t)
+            }
+            return ts;
+        }
     }
 
     static autoJump(ticks, initialPosition = undefined) {
@@ -99,21 +144,21 @@ class TickSequence extends Array {
         )
     }
 
-    pushITick(facing = 0, inputs = "", strafe = false) {
+    pushITick(facing = 0, inputs = "") {
         this.push(
             Tick.fromInputs(
                 this.length > 0 ? this[this.length - 1] : undefined,
                 this.initialPosition,
                 facing,
                 inputs,
-                strafe
+                (inputs.includes("w") || inputs.includes("s")) && (inputs.includes("a") || inputs.includes("d"))
             )
         )
     }
 
-    pushITicks(count = 1, facing, inputs, strafe) {
+    pushITicks(count = 1, facing, inputs) {
         for (let i = 0; i < count; i++)
-            this.pushITick(facing, inputs, strafe);
+            this.pushITick(facing, inputs);
     }
 
     pushTicks(count = 1, facing = 0, movementType = "sprint", keys = "w", strafe = false, groundType = "default") {

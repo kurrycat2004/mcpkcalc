@@ -24,7 +24,7 @@ class Tick {
     }
 
     static fromInputs(lastTick, initialPosition, facing = 0, inputs = "", strafe = false){
-        let jumpTick = inputs.includes(" ");
+        let jumpTick = inputs.includes(" ") || inputs.includes("space");
         let movementType = inputs.includes("shift") ? "sneak" : (inputs.includes("ctrl") ? "sprint" : "walk");
         let keys = [...inputs].filter(e => "wasd".includes(e)).join("");
         if(keys == "") movementType = "stop";
