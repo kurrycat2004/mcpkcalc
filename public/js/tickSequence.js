@@ -54,23 +54,46 @@ class TickSequence extends Array {
         parts.forEach((v, splitTick) => {
             if (errorChar != -1) return;
 
-            let bsplit = v.split("+");
-            if (bsplit.every(e => ["w", "a", "s", "d", "shift", "space", "ctrl"].includes(e))) {
-                inputs[i] = bsplit;
+            let p = v.split(/;(?=-?\d{1,3}(?:.\d+)?°(?:_|$))/);
+            let f = p.length > 1 ? p[1] : "0°";
+            let k = p[0];
+            if (k == "") {
                 i++;
                 return;
             }
+
             let m;
-            if ((m = v.match(/((?<keys>[a-zA-Z]+|(?<=\()[^\)]+(?=\)))\)?(?<len>\d+)t)(?<facing>-?\d{1,3}°)?/)) != null) {
-                let keys = m.groups.keys.split("+");
+
+            if ((m = f.match(/-?\d{1,3}(.\d+)?°/)) != null) {
+                if (inputs[i] == undefined) inputs[i] = [];
+                inputs[i].push(f);
+            } else {
+                errorChar = original.split("_").splice(0, splitTick).join("_").length + original.split("_").splice(splitTick, 1)[0].split(";")[0].length + 1;
+                return;
+            }
+
+            let bsplit = k.split("+");
+            if (bsplit.every(e => ["w", "a", "s", "d", "shift", "space", "ctrl"].includes(e))) {
+                if (inputs[i] == undefined) inputs[i] = [];
+                inputs[i].push(...bsplit);
+                i++;
+                return;
+            }
+
+            if ((m = k.match(/(?<content>[a-zA-Z]+|(?<=\()[^\)]+(?=\)))\)?(?<len>\d+)t/)) != null) {
+                console.log(m)
+                let pa = m.groups.content.split(";")
+                let keys = pa[0].split("+");
+                let fa = pa.length > 1 ? pa[1] : "0°";
                 if (keys.every(e => ["w", "a", "s", "d", "shift", "space", "ctrl"].includes(e))) {
                     for (let j = 0; j < (m.groups.len || 1); j++) {
+                        let an = fa;
                         if (inputs[i + j] == undefined) inputs[i + j] = [];
-                        inputs[i + j].push(...keys);
-                    }
-                    if (m.groups.facing != undefined) {
-                        inputs[i].push(m.groups.facing)
-                        console.log(inputs[i])
+                        if (j == 0 && inputs[i].length > 0 && inputs[i][0].match(/-?\d{1,3}(.\d+)?°/) != null) {
+                            an = parseFloat(fa.substring(0, an.length - 1)) + parseFloat(inputs[i][0].substring(0, inputs[i][0].length - 1)) + "°";
+                            inputs[i].splice(0, 1);
+                        }
+                        inputs[i + j].push(an, ...keys);
                     }
                     i -= -m.groups.len;
                     return;
@@ -88,10 +111,9 @@ class TickSequence extends Array {
             ts.pushStopTick();
             let a = 0;
             for (let t of inputs) {
-                let f = t.findIndex(v => v.match(/-?\d{1,3}°/) != null);
-                if (f != -1)
-                    a += parseFloat(t[f].substring(0, t[f].length - 1)) || 0
-                ts.pushITick(a, t)
+                console.log(t)
+                if (t[0].match(/-?\d{1,3}(.\d+)?°/) != null) a += parseFloat(t[0].substring(0, t[0].length - 1));
+                ts.pushITick(-a, t)
             }
             return ts;
         }
