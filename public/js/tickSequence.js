@@ -40,6 +40,8 @@ class TickSequence extends Array {
         return s;
     }
 
+    static facingRegex = /-?\d{1,3}(.\d+)?°(?<a>a?)/;
+
     static fromStratString(original) {
         let s = original
             .replace(/sprint/g, "ctrl")
@@ -54,7 +56,8 @@ class TickSequence extends Array {
         parts.forEach((v, splitTick) => {
             if (errorChar != -1) return;
 
-            let p = v.split(/;(?=-?\d{1,3}(?:.\d+)?°(?:_|$))/);
+            let p = v.split(/;(?=-?\d{1,3}(?:.\d+)?°a?(?:_|$))/);
+            console.log(p)
             let f = p.length > 1 ? p[1] : "0°";
             let k = p[0];
             if (k == "") {
@@ -64,7 +67,7 @@ class TickSequence extends Array {
 
             let m;
 
-            if ((m = f.match(/-?\d{1,3}(.\d+)?°/)) != null) {
+            if ((m = f.match(TickSequence.facingRegex)) != null) {
                 if (inputs[i] == undefined) inputs[i] = [];
                 inputs[i].push(f);
             } else {
@@ -80,17 +83,18 @@ class TickSequence extends Array {
                 return;
             }
 
-            if ((m = k.match(/(?<content>[a-zA-Z]+|(?<=\()[^\)]+(?=\)))\)?(?<len>\d+)t/)) != null) {
-                console.log(m)
+            if ((m = k.match(/^\(?(?<content>[a-zA-Z]+|(?<=\()[^\)]+(?=\)))\)?(?<len>\d+)t$/)) != null) {
                 let pa = m.groups.content.split(";")
                 let keys = pa[0].split("+");
                 let fa = pa.length > 1 ? pa[1] : "0°";
                 if (keys.every(e => ["w", "a", "s", "d", "shift", "space", "ctrl"].includes(e))) {
                     for (let j = 0; j < (m.groups.len || 1); j++) {
-                        let an = fa;
                         if (inputs[i + j] == undefined) inputs[i + j] = [];
-                        if (j == 0 && inputs[i].length > 0 && inputs[i][0].match(/-?\d{1,3}(.\d+)?°/) != null) {
-                            an = parseFloat(fa.substring(0, an.length - 1)) + parseFloat(inputs[i][0].substring(0, inputs[i][0].length - 1)) + "°";
+                        let an = fa;
+                        if (j == 0 && inputs[i].length > 0 && inputs[i][0].match(TickSequence.facingRegex) != null) {
+                            if (an.match(TickSequence.facingRegex).groups.a == "") {
+                                an = parseFloat(fa.slice(0, -1)) + parseFloat(inputs[i][0].slice(0, -1)) + "°";
+                            }
                             inputs[i].splice(0, 1);
                         }
                         inputs[i + j].push(an, ...keys);
@@ -102,17 +106,21 @@ class TickSequence extends Array {
             }
             errorChar = original.split("_").splice(0, splitTick).join("_").length + 1;
         })
-        console.log(parts);
+
         console.log(inputs);
+
         if (errorChar != -1)
             return errorChar;
         else {
             let ts = new TickSequence();
             ts.pushStopTick();
             let a = 0;
+            let m;
             for (let t of inputs) {
-                console.log(t)
-                if (t[0].match(/-?\d{1,3}(.\d+)?°/) != null) a += parseFloat(t[0].substring(0, t[0].length - 1));
+                if ((m = t[0].match(TickSequence.facingRegex)) != null) {
+                    if (m.groups.a != "") a = parseFloat(t[0].substring(0, t[0].length - 2));
+                    else a += parseFloat(t[0].substring(0, t[0].length - 1));
+                }
                 ts.pushITick(-a, t)
             }
             return ts;

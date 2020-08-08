@@ -24,18 +24,16 @@ let mousePressPos = { x: -1, y: -1 }
 
 let blocks = [];
 
-let params = window.location.pathname.split("/");
-params.splice(0, 2);
-if (params[0] == "") params = [];
-params = params.map(p => decodeURIComponent(p));
-let strat = params[params.length - 1];
+let params;
+let strat;
+
+let paramStratEle;
+
 let ts;
-let coord = parseFloat(params[1]);
-coord = coord != NaN ? coord : 0;
-if (coord < 0) coord += 1.6;
+
+let coord;
 
 function setup() {
-
     document.oncontextmenu = e => {
         if (mouseX <= width && mouseX >= 0 && mouseY <= height && mouseY >= 0) return false;
     }
@@ -52,6 +50,17 @@ function setup() {
         }
     }
 
+    updateParam();
+
+    console.log(params);
+
+    paramStratEle = document.getElementById("paramStrat");
+    paramStratEle.value = strat;
+
+    paramStratEle.oninput = () => {
+        updateUrl("/s/" + params[0] + "/" + params[1] + "/" + paramStratEle.value);
+    }
+
     rotatingText = new TextEle(`Rotating: ${rotating} (Press mouse wheel to toggle)`, width / 20, height / 50, false);
     rotatingText.addToDom();
     rotatingText.elt.ondblclick = Canvas.elt.ondblclick;
@@ -64,19 +73,12 @@ function setup() {
     player = new Player(-13 * blockSize, (blockCount / 2) * blockSize, (blockCount / 2) * blockSize, HALF_PI, HALF_PI);
     player.updateCamera();
 
-    console.log(params);
+
     blocks.push(new Block(0, blockCount - 5, 1, 1, 1));
     blocks.push(new Block(0, blockCount - 5, 6.375, 1, 1));
 
 
-    ts = TickSequence.fromStratString(strat);
-    if (typeof ts == "number") {
-        console.log(strat.slice(0, ts) + "%c" + strat.slice(ts), "background-color: red;")
-    } else {
-        tickSequence = ts;
-        tickSequence.updateInitialPosition(createVector(0.5, 0, coord + 0.7));
-    }
-    console.log(ts);
+    tickSequenceUpdate();
 
     tickSequenceContainer = document.getElementById("tickSequenceContainer");
 
@@ -207,10 +209,6 @@ function setup() {
 
     console.log(tickSequence);
 
-    initialPositionInput = createInput(tickSequence.initialPosition.z + "");
-    initialPositionSlider = createSlider(0, 1, 0, 0.01);
-    initialPositionSlider.input(() => initialPositionInput.elt.value = initialPositionSlider.value())
-
     tickSequenceContainer.innerHTML = "";
     for (let td of getTicksAsDivs(tickSequence)) {
         tickSequenceContainer.appendChild(td);
@@ -258,13 +256,6 @@ function draw() {
         }
     }
 
-    if (tickSequence.initialPosition.z != parseFloat(initialPositionInput.value())) {
-        tickSequence.updateInitialPosition(createVector(0.5, tickSequence.initialPosition.y, parseFloat(initialPositionInput.value())));
-        tickSequenceContainer.innerHTML = "";
-        for (let td of getTicksAsDivs(tickSequence)) {
-            tickSequenceContainer.appendChild(td);
-        }
-    }
     background(0);
     stroke(255);
     noFill();
@@ -306,6 +297,7 @@ function draw() {
         pop();
     }
 }
+
 /* function keyPressed() {
     console.log(keyCode)
     //if (key == " ") console.log(tickSequence);
@@ -331,6 +323,44 @@ function mouseDragged() {
     }
 }
 
+function tickSequenceUpdate(){
+    ts = TickSequence.fromStratString(strat);
+    if (typeof ts == "number") {
+        console.log(strat.slice(0, ts) + "%c" + strat.slice(ts), "background-color: red;")
+        paramStratEle.style.backgroundColor = "red";
+    } else {
+        paramStratEle.style.backgroundColor = "white";
+        tickSequence = ts;
+        tickSequence.updateInitialPosition(createVector(0.5, 0, coord + 0.7));
+    }
+}
+
+function updateParam() {
+    params = window.location.pathname.split("/");
+    params.splice(0, 2);
+    if (params[0] == "") params = [];
+    params = params.map(p => decodeURIComponent(p));
+    strat = params[params.length - 1];
+
+    coord = parseFloat(params[1]);
+    coord = coord != NaN ? coord : 0;
+    if (coord < 0) coord += 1.6;
+}
+
+function updateUrl(path) {
+    window.history.pushState({}, null, path);
+    updateParam();
+
+    paramStratEle.value = strat;
+
+    tickSequenceUpdate();
+
+    tickSequenceContainer.innerHTML = "";
+    for (let td of getTicksAsDivs(tickSequence)) {
+        tickSequenceContainer.appendChild(td);
+    }
+}
+
 function onCanvas() {
     return mouseX > 0 && mouseX < width && mouseY > 0 && mouseY < height;
 }
@@ -341,6 +371,7 @@ function mousePressed() {
         rotatingText.updateText(`Rotating: ${rotating} (Press mouse wheel to toggle)`, false);
     }
 }
+
 /* 
 function mouseReleased() {
     if (Math.abs(mousePressPos.x - mouseX) > 10 || Math.abs(mousePressPos.y - mouseY) > 10) return;
@@ -353,94 +384,6 @@ function mouseReleased() {
     tickSequence.reload();
     return false;
 } */
-
-function getTicksAsDivs(ticks) {
-    let divs = [];
-    for (let tick in ticks) {
-        if (isNaN(tick)) continue;
-        let td = getTickAsDiv(tick, ticks[tick]);
-        td.id = tick;
-        divs.push(td);
-    }
-    return divs;
-}
-
-function getTickAsDiv(index, tick) {
-    let container = createEle("div", { "class": "card" });
-
-    let button = createEle("button", {
-        "class": "btn collapsed",
-        "type": "button",
-        "data-toggle": "collapse",
-        "data-target": "#collapse" + index,
-        "aria-expanded": "false",
-        "aria-controls": "collapse" + index,
-        "id": "button" + index,
-    });
-    container.appendChild(button);
-
-    let buttonText = createEle("div", { "class": "d-flex justify-content-around align-items-center" });
-    button.appendChild(buttonText);
-
-    let buttonTextTickcount = createEle("p", { "class": "mb-0" });
-    buttonTextTickcount.innerText = (index - -1) + ". Tick";
-    buttonText.appendChild(buttonTextTickcount);
-
-    let buttonTextCoords = createEle("p", { "class": "mb-0" });
-    buttonTextCoords.innerText = Tick.vectorToStringSmall(tick);
-    buttonText.appendChild(buttonTextCoords);
-
-    let card = createEle("div", {
-        "id": "collapse" + index,
-        "class": "collapse",
-        "aria-labelledby": "button" + index,
-        "data-parent": "#tickSequenceContainer",
-    })
-    container.appendChild(card);
-
-    let cardBody = createEle("div", { "class": "card-body" });
-    card.appendChild(cardBody);
-
-    let row = createEle("div", { "class": "row" })
-    cardBody.appendChild(row);
-
-    cardBody.appendChild(
-        createEle("div", { "class": "row" }, [
-            createEle("div", { "class": "col-2" }, [
-                createEle("p", {}, [], e => {
-                    e.innerText = (index - -1) + ". Tick";
-                })
-            ]),
-            createEle("div", { "class": "col" }, [
-                createEle("p", {}, [], e => {
-                    e.innerText = Tick.vectorToString(tick);
-                })
-            ])
-        ])
-    );
-
-    cardBody.appendChild(
-        createEle("div", { "class": "row" }, [
-            createEle("div", { "class": "col" }, [
-                createEle("p", {}, [], (t) => {
-                    let inp = tick.getInputs();
-                    let keys = inp.keys;
-                    keys = keys.map(e => {
-                        if (e == " ") return "space";
-                        return e;
-                    });
-                    keys = keys.join(", ");
-                    if (keys == "") keys = "NONE";
-                    let fac = inp.facing;
-                    fac += "°";
-                    t.innerText = "Inputs: " + keys + "\nFacing: " + fac;
-                })
-            ])
-        ])
-    );
-
-    return container;
-}
 
 function createEle(type, options, childs = [], editCallback = ((t) => t)) {
     let t = document.createElement(type);
@@ -458,4 +401,90 @@ function parseJump(jump) {
     arr = arr[0];
     let d = createVector(parseFloat(arr[1] || 0), parseFloat(arr[9] || 0), parseFloat(arr[6] || 0));
     return d;
+}
+
+function getTicksAsDivs(ticks) {
+    let divs = [];
+    for (let tick in ticks) {
+        if (isNaN(tick)) continue;
+        let td = getTickAsDiv(tick, ticks[tick]);
+        td.id = tick;
+        divs.push(td);
+    }
+    return divs;
+}
+
+function getTickAsDiv(index, tick) {
+    return createEle("div", { "class": "card" }, [
+        createEle("button", {
+            "class": "btn collapsed",
+            "type": "button",
+            "data-toggle": "collapse",
+            "data-target": "#collapse" + index,
+            "aria-expanded": "false",
+            "aria-controls": "collapse" + index,
+            "id": "button" + index,
+        },
+            [
+                createEle("div", {
+                    "class": "d-flex justify-content-around align-items-center"
+                },
+                    [
+                        createEle("p", { "class": "mb-0" }, [], t => t.innerText = (index - -1) + ". Tick"),
+                        createEle("p", { "class": "mb-0" }, [], t => t.innerText = Tick.vectorToStringSmall(tick))
+                    ])
+            ]),
+        createEle("div", {
+            "id": "collapse" + index,
+            "class": "collapse",
+            "aria-labelledby": "button" + index,
+            "data-parent": "#tickSequenceContainer",
+        },
+            [
+                createEle("div", {
+                    "class": "card-body"
+                },
+                    [
+                        createEle("div", {
+                            "class": "row"
+                        },
+                            [
+                                createEle("div", {
+                                    "class": "col-2"
+                                },
+                                    [
+                                        createEle("p", {}, [], e => {
+                                            e.innerText = (index - -1) + ". Tick";
+                                        })
+                                    ]),
+                                createEle("div", {
+                                    "class": "col"
+                                },
+                                    [
+                                        createEle("p", {}, [], e => {
+                                            e.innerText = Tick.vectorToString(tick);
+                                        })
+                                    ])
+                            ]),
+                        createEle("div", {
+                            "class": "row"
+                        },
+                            [
+                                createEle("div", {
+                                    "class": "col"
+                                },
+                                    [
+                                        createEle("p", {}, [], (t) => {
+                                            let inp = tick.getInputs();
+                                            let keys = inp.keys;
+                                            let fac = -inp.facing + "°";
+                                            keys = keys.map(e => e == " " ? "space" : e).join(", ");
+                                            if (keys == "") keys = "NONE";
+                                            t.innerText = "Inputs: " + keys + "\nFacing: " + fac;
+                                        })
+                                    ])
+                            ])
+                    ])
+            ])
+    ]);
 }
