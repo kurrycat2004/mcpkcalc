@@ -27,7 +27,6 @@ class TickSequence extends Array {
             .replace(/W/g, "ctrl+w")
             .replace(/bwhh([^_]*)(_([^_]*))?/g, (_match, p1, _, p2) => {
                 let st = "s" + p1 + "_s+space";
-                console.log(p2)
                 if (p2 != undefined && p2 != "") st += (p2.startsWith("_") ? "" : "+") + p2;
                 return st;
             })
@@ -36,11 +35,36 @@ class TickSequence extends Array {
                 if (p2 != undefined && p2 != "") st += (p2.startsWith("_") ? "" : "+") + p2;
                 return st;
             })
-        console.log(s);
         return s;
     }
 
     static facingRegex = /-?\d{1,3}(.\d+)?°(?<a>a?)/;
+    static lastFacingRegex = /;(?!-?\d{1,3}(?:.\d+)?°a?\))/;
+    static partRegex = /\+(?![^\)\(]*\))/;
+
+    static _getCurrIndex(original, tick, subFacing, subKey) {
+        console.log(original, tick, subFacing, subKey)
+        let index = 0;
+        let oSplit = original.split("_");
+        let befTicks = oSplit.slice(0, tick).join("_");
+        index += befTicks.length + befTicks.length > 0 ? 1 : 0;
+        if (subFacing == 1) {
+            if (subKey == -1) {
+                let befFac = oSplit[tick].split(TickSequence.lastFacingRegex)[0];
+                console.log(befFac);
+                index += befFac.length + befFac.length > 0 ? 1 : 0;
+            } else {
+                let befKeFa = oSplit[tick].split(";")[0];
+                console.log(befKeFa);
+                index += befKeFa.length + befKeFa.length > 0 ? 1 : 0;
+            }
+        } else {
+            let befKey = oSplit[tick].split(TickSequence.partRegex).slice(0, subKey).join("+");
+            console.log(befKey);
+            index += befKey.length + befKey.length > 0 ? 1 : 0;
+        }
+        return index;
+    }
 
     static fromStratString(original) {
         let s = original
@@ -56,11 +80,10 @@ class TickSequence extends Array {
         parts.forEach((v, splitTick) => {
             if (errorChar != -1) return;
 
-            let p = v.split(/;(?=-?\d{1,3}(?:.\d+)?°a?(?:_|$))/);
-            console.log(p)
+            let p = v.split(TickSequence.lastFacingRegex);
             let f = p.length > 1 ? p[1] : "0°";
             let k = p[0];
-            if (k == "") {
+            if (k == "" && f == "0°") {
                 i++;
                 return;
             }
@@ -71,40 +94,54 @@ class TickSequence extends Array {
                 if (inputs[i] == undefined) inputs[i] = [];
                 inputs[i].push(f);
             } else {
-                errorChar = original.split("_").splice(0, splitTick).join("_").length + original.split("_").splice(splitTick, 1)[0].split(";")[0].length + 1;
+                console.log("ERROR")
+                errorChar = TickSequence._getCurrIndex(original, splitTick, 1, -1);
+                //errorChar = original.split("_").splice(0, splitTick).join("_").length + original.split("_").splice(splitTick, 1)[0].split(TickSequence.lastFacingRegex)[0].length + 1;
                 return;
             }
 
-            let bsplit = k.split("+");
+            let bsplit = k.split(TickSequence.partRegex);
             if (bsplit.every(e => ["w", "a", "s", "d", "shift", "space", "ctrl"].includes(e))) {
                 if (inputs[i] == undefined) inputs[i] = [];
                 inputs[i].push(...bsplit);
                 i++;
                 return;
             }
-
-            if ((m = k.match(/^\(?(?<content>[a-zA-Z]+|(?<=\()[^\)]+(?=\)))\)?(?<len>\d+)t$/)) != null) {
-                let pa = m.groups.content.split(";")
-                let keys = pa[0].split("+");
-                let fa = pa.length > 1 ? pa[1] : "0°";
-                if (keys.every(e => ["w", "a", "s", "d", "shift", "space", "ctrl"].includes(e))) {
-                    for (let j = 0; j < (m.groups.len || 1); j++) {
-                        if (inputs[i + j] == undefined) inputs[i + j] = [];
-                        let an = fa;
-                        if (j == 0 && inputs[i].length > 0 && inputs[i][0].match(TickSequence.facingRegex) != null) {
-                            if (an.match(TickSequence.facingRegex).groups.a == "") {
-                                an = parseFloat(fa.slice(0, -1)) + parseFloat(inputs[i][0].slice(0, -1)) + "°";
+            console.log(bsplit);
+            for (let part in bsplit) {
+                if (["w", "a", "s", "d", "shift", "space", "ctrl"].includes(bsplit[part])) {
+                    if (inputs[i] == undefined) inputs[i] = [];
+                    inputs[i].push(bsplit[part]);
+                } else if ((m = bsplit[part].match(/^\(?(?<content>[a-zA-Z]+|(?<=\()[^\)]+(?=\)))\)?(?<len>\d+)t$/)) != null) {
+                    console.log(m);
+                    let pa = m.groups.content.split(";")
+                    let keys = pa[0].split("+");
+                    let fa = pa.length > 1 ? pa[1] : "0°";
+                    if (keys.every(e => ["w", "a", "s", "d", "shift", "space", "ctrl"].includes(e))) {
+                        for (let j = 0; j < (m.groups.len || 1); j++) {
+                            if (inputs[i + j] == undefined) inputs[i + j] = [];
+                            let an = fa;
+                            let ma;
+                            if (j == 0 && inputs[i].length > 0 && inputs[i][0].match(TickSequence.facingRegex) != null) {
+                                if ((ma = an.match(TickSequence.facingRegex)) == null) {
+                                    errorChar = TickSequence._getCurrIndex(original, splitTick, 1, part);
+                                }
+                                if (ma.groups.a == "") {
+                                    an = parseFloat(fa.slice(0, -1)) + parseFloat(inputs[i][0].slice(0, -1)) + "°";
+                                }
+                                inputs[i].splice(0, 1);
                             }
-                            inputs[i].splice(0, 1);
+                            inputs[i + j].push(an, ...keys);
                         }
-                        inputs[i + j].push(an, ...keys);
+                        i -= -m.groups.len;
+                        return;
                     }
-                    i -= -m.groups.len;
-                    return;
+                    errorChar = TickSequence._getCurrIndex(original, splitTick, 0, part);
+                } else {
+                    console.log(bsplit[part])
+                    errorChar = TickSequence._getCurrIndex(original, splitTick, 0, 0);
                 }
-                errorChar = original.split("_").splice(0, splitTick).join("_").length + 1;
             }
-            errorChar = original.split("_").splice(0, splitTick).join("_").length + 1;
         })
 
         console.log(inputs);

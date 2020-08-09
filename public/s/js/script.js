@@ -33,10 +33,29 @@ let ts;
 
 let coord;
 
+if (window.addEventListener)
+    window.addEventListener("load", onLoad, false);
+else if (window.attachEvent)
+    window.attachEvent("onload", onLoad);
+else window.onload = onLoad;
+
+function onLoad() {
+    console.log("LOAD!!!!")
+    window.history.replaceState({ first: true }, null, decodeURIComponent(window.location.pathname));
+}
+
 function setup() {
     document.oncontextmenu = e => {
         if (mouseX <= width && mouseX >= 0 && mouseY <= height && mouseY >= 0) return false;
     }
+
+    window.onpopstate = e => {
+        if (e.state) {
+            updateCurrUrl()
+        }
+    }
+
+    console.log(window.history)
 
     Canvas = createCanvas(canvasSize, canvasSize, WEBGL);
     Canvas.parent("canvas");
@@ -50,6 +69,8 @@ function setup() {
         }
     }
 
+    tickSequenceContainer = document.getElementById("tickSequenceContainer");
+
     updateParam();
 
     console.log(params);
@@ -59,6 +80,14 @@ function setup() {
 
     paramStratEle.oninput = () => {
         updateUrl("/s/" + params[0] + "/" + params[1] + "/" + paramStratEle.value);
+    }
+
+    document.getElementById("stratBack").onclick = () => {
+        if (!window.history.state.first)
+            window.history.back();
+    }
+    document.getElementById("stratForward").onclick = () => {
+        window.history.forward();
     }
 
     rotatingText = new TextEle(`Rotating: ${rotating} (Press mouse wheel to toggle)`, width / 20, height / 50, false);
@@ -79,8 +108,6 @@ function setup() {
 
 
     tickSequenceUpdate();
-
-    tickSequenceContainer = document.getElementById("tickSequenceContainer");
 
 
 
@@ -323,13 +350,21 @@ function mouseDragged() {
     }
 }
 
-function tickSequenceUpdate(){
+function tickSequenceUpdate() {
     ts = TickSequence.fromStratString(strat);
     if (typeof ts == "number") {
         console.log(strat.slice(0, ts) + "%c" + strat.slice(ts), "background-color: red;")
-        paramStratEle.style.backgroundColor = "red";
+        let w = getTextWidth(strat.slice(0, ts), '1rem -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji"');
+        let tw = getTextWidth(strat.slice(ts), '1rem -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji"');
+        paramStratEle.style.backgroundSize = tw + "px";
+        paramStratEle.style.backgroundImage = "linear-gradient(red, red)"
+        paramStratEle.style.backgroundPosition = (w + 12) + "px";
+        paramStratEle.style.backgroundRepeat = "no-repeat";
+        tickSequence = new TickSequence();
+        tickSequence.updateInitialPosition(createVector(0.5, 0, coord + 0.7));
+        tickSequence.pushStopTick();
     } else {
-        paramStratEle.style.backgroundColor = "white";
+        paramStratEle.style = "";
         tickSequence = ts;
         tickSequence.updateInitialPosition(createVector(0.5, 0, coord + 0.7));
     }
@@ -347,8 +382,7 @@ function updateParam() {
     if (coord < 0) coord += 1.6;
 }
 
-function updateUrl(path) {
-    window.history.pushState({}, null, path);
+function updateCurrUrl() {
     updateParam();
 
     paramStratEle.value = strat;
@@ -359,6 +393,11 @@ function updateUrl(path) {
     for (let td of getTicksAsDivs(tickSequence)) {
         tickSequenceContainer.appendChild(td);
     }
+}
+
+function updateUrl(path) {
+    window.history.pushState({}, null, path);
+    updateCurrUrl();
 }
 
 function onCanvas() {
@@ -401,6 +440,14 @@ function parseJump(jump) {
     arr = arr[0];
     let d = createVector(parseFloat(arr[1] || 0), parseFloat(arr[9] || 0), parseFloat(arr[6] || 0));
     return d;
+}
+
+function getTextWidth(text, font) {
+    var canvas = getTextWidth.canvas || (getTextWidth.canvas = document.createElement("canvas"));
+    var context = canvas.getContext("2d");
+    context.font = font;
+    var metrics = context.measureText(text);
+    return metrics.width;
 }
 
 function getTicksAsDivs(ticks) {
