@@ -19,10 +19,14 @@ class Block {
             let m;
             if ((m = part.match(/^\((?<blockType>[a-zA-Z]*)(:(?<orientation>[ZX]([+-])?))?;\[(?<x>-?\d+),(?<y>-?\d+),(?<z>-?\d+)\]\)$/)) != null) {
                 let o = m.groups.orientation || "0";
-                if (o.length == 1 && o[0] != "0") o += "+";
-
+                
                 let b = m.groups.blockType.toLowerCase();
                 if (BlockType.replacements[b] != undefined) b = BlockType.replacements[b];
+                if(!Object.keys(BlockType.types).includes(b)){
+                    errorChar = parts.slice(0, p).join("").length;
+                    break;
+                }
+
                 b = new BlockType(b, o);
                 let bOff = b.coords;
                 let bSize = b.size;

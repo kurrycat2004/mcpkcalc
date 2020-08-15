@@ -119,9 +119,11 @@ function setup() {
     player = new Player(-13 * blockSize, (blockCount / 2) * blockSize, (blockCount / 2) * blockSize, HALF_PI, HALF_PI);
     player.updateCamera();
 
+    console.log(params);
+
     updateCurrUrl();
 
-    console.log(params);
+
 
 
     /* //Jam
@@ -406,15 +408,18 @@ function blocksUpdate() {
 function updateParam() {
     params = window.location.pathname.split("/");
     params.splice(0, 2);
-    if (params[0] == "") params = [];
+    //if (params[0] == "") params = [];
     params = params.map(p => decodeURIComponent(p));
+
+    console.log(params);
+
     strat = params[params.length - 1];
 
     blockLayout = params[0];
 
     coords = params[1];
     let cs = coords.split(";");
-    if(cs.length == 1 && cs[0] == "") cs[0] = "0";
+    if (cs.length == 1 && cs[0] == "") cs[0] = "0";
     if (cs.every(e => e.match(/^-?\d+(\.\d+)?$/) != null)) {
         paramCoordsEle.style = "";
 
@@ -458,8 +463,8 @@ function updateUrl(path) {
     updateCurrUrl();
 }
 
-function onCanvas() {
-    return mouseX > 0 && mouseX < width && mouseY > 0 && mouseY < height;
+function onCanvas(x = mouseX, y = mouseY) {
+    return x > 0 && x < width && y > 0 && y < height;
 }
 
 function mousePressed() {
