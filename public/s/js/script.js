@@ -3,7 +3,7 @@ const jumpBoost = 0;
 const speed = 0;
 const slowness = 0;
 let ground;
-const blockSize = 40;
+const blockSize = 48;
 const canvasSize = 600;
 const blockCount = Math.floor(canvasSize / blockSize);
 let tickSequence;
@@ -51,6 +51,29 @@ function onLoad() {
     window.history.replaceState({ first: true }, null, decodeURIComponent(window.location.pathname));
 }
 
+function getGraphicsFromImg(i){
+    let g = createGraphics(i.width * blockSize, i.height * blockSize);
+    g.image(i, 0, 0, i.width * blockSize, i.height * blockSize);
+    return g;
+}
+
+function preload() {
+    //TODO: TEXTURE LOADING
+    BlockType.types.l.texture = {}
+    loadImage("/s/assets/images/ladder_front.png", i => {
+        BlockType.types.l.texture.front = getGraphicsFromImg(i);
+        BlockType.types.l.texture.back = getGraphicsFromImg(i);
+    });
+    loadImage("/s/assets/images/ladder_top.png", i => {
+        BlockType.types.l.texture.top = getGraphicsFromImg(i);
+        BlockType.types.l.texture.bottom = getGraphicsFromImg(i);
+    });
+    loadImage("/s/assets/images/ladder_side.png", i => {
+        BlockType.types.l.texture.left = getGraphicsFromImg(i);
+        BlockType.types.l.texture.right = getGraphicsFromImg(i);
+    });
+}
+
 function setup() {
     document.oncontextmenu = e => {
         if (mouseX <= width && mouseX >= 0 && mouseY <= height && mouseY >= 0) return false;
@@ -65,6 +88,7 @@ function setup() {
     console.log(window.history)
 
     Canvas = createCanvas(canvasSize, canvasSize, WEBGL);
+    drawingContext.imageSmoothingEnabled = false;
     Canvas.parent("canvas");
 
     Canvas.elt.ondblclick = function (e) {
@@ -75,6 +99,7 @@ function setup() {
             return false;
         }
     }
+    imageMode(CENTER);
 
     tickSequenceContainer = document.getElementById("tickSequenceContainer");
 
@@ -123,26 +148,6 @@ function setup() {
 
     updateCurrUrl();
 
-
-
-
-    /* //Jam
-    tickSequence = new TickSequence(createVector(0, 0, 1));
-    tickSequence.push(Tick.stopTick());
-    tickSequence.pushTick(0, "sprint", "w", false, true);
-    tickSequence.pushTicks(11, 0, "sprint", "w", false); */
-
-    //rex bwmm
-    /* blocks.push(new Block(0, blockCount - 5, 1, 1, 1));
-    blocks.push(new Block(0, blockCount - 5, 6.375, 1, 1)); */
-    /* tickSequence = new TickSequence(createVector(0.5, 0, 2.172));
-    tickSequence.pushStopTick();
-    tickSequence.pushTick(0, "walk", "s", false, true, "default");
-    tickSequence.pushTicks(12, 0, "walk", "s", false, "default");
-    tickSequence.pushTick(0, "sprint", "wa", true, true, "default");
-    tickSequence.pushTicks(11, 0, "sprint", "w", false, "default");
-    tickSequence.pushTick(0, "sprint", "w", false, true);
-    tickSequence.pushTicks(12, 0, "sprint", "w", true, false); */
 
 
     // //rex bwmm 1 shift tick

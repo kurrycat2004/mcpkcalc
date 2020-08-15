@@ -122,28 +122,32 @@ class BlockType {
                 x: 1,
                 y: 0.5,
                 z: 1,
-            }
+            },
+            texture: undefined,
         },
         "b": {
             size: {
                 x: 1,
                 y: 1,
                 z: 1,
-            }
+            },
+            texture: undefined,
         },
         "l": {
             size: {
                 x: 1,
                 y: 1,
                 z: 0.125,
-            }
+            },
+            texture: undefined,
         },
         "td": {
             size: {
                 x: 1,
                 y: 1,
                 z: 0.1875,
-            }
+            },
+            texture: undefined,
         },
         "f": {
             size: {
@@ -151,7 +155,8 @@ class BlockType {
                 y: 1.5,
                 z: 0.25
             },
-            transforms: true
+            transforms: true,
+            texture: undefined,
         },
         "cw": {
             size: {
@@ -159,7 +164,8 @@ class BlockType {
                 y: 1.5,
                 z: 0.5
             },
-            transforms: true
+            transforms: true,
+            texture: undefined,
         },
     }
 
