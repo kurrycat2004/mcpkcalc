@@ -10,6 +10,8 @@ let tickSequence;
 let initialPositionSlider;
 let initialPositionInput;
 
+//TODO: GROUND BROKEN
+
 let player;
 let camSpeed = 1;
 let pointerLock;
@@ -25,13 +27,19 @@ let mousePressPos = { x: -1, y: -1 }
 let blocks = [];
 
 let params;
+
+let blockLayout;
+let coords;
 let strat;
 
+let coord;
+
 let paramStratEle;
+let paramCoordsEle;
+let paramBlocksEle;
 
 let ts;
 
-let coord;
 
 if (window.addEventListener)
     window.addEventListener("load", onLoad, false);
@@ -40,7 +48,6 @@ else if (window.attachEvent)
 else window.onload = onLoad;
 
 function onLoad() {
-    console.log("LOAD!!!!")
     window.history.replaceState({ first: true }, null, decodeURIComponent(window.location.pathname));
 }
 
@@ -71,22 +78,33 @@ function setup() {
 
     tickSequenceContainer = document.getElementById("tickSequenceContainer");
 
-    updateParam();
-
-    console.log(params);
-
     paramStratEle = document.getElementById("paramStrat");
     paramStratEle.value = strat;
 
+    paramBlocksEle = document.getElementById("paramBlocks");
+    paramBlocksEle.value = blockLayout;
+
+    paramCoordsEle = document.getElementById("paramCoords");
+    paramCoordsEle.value = coords;
+
+
     paramStratEle.oninput = () => {
-        updateUrl("/s/" + params[0] + "/" + params[1] + "/" + paramStratEle.value);
+        updateUrl("/s/" + blockLayout + "/" + coords + "/" + paramStratEle.value);
     }
 
-    document.getElementById("stratBack").onclick = () => {
+    paramBlocksEle.oninput = () => {
+        updateUrl("/s/" + paramBlocksEle.value + "/" + coords + "/" + strat);
+    }
+
+    paramCoordsEle.oninput = () => {
+        updateUrl("/s/" + blockLayout + "/" + paramCoordsEle.value + "/" + strat);
+    }
+
+    document.getElementById("arrowBack").onclick = () => {
         if (!window.history.state.first)
             window.history.back();
     }
-    document.getElementById("stratForward").onclick = () => {
+    document.getElementById("arrowForward").onclick = () => {
         window.history.forward();
     }
 
@@ -96,19 +114,14 @@ function setup() {
 
     pointerLock = new PointerLock(document, Canvas.elt, (x, y) => { player.mouseMoved(-x, y); });
 
-    for (let i = 0; i < blockCount; i++) { blocks.push(new Block(0, blockCount - 1, i, 1)) }
     ground = new Ground();
 
     player = new Player(-13 * blockSize, (blockCount / 2) * blockSize, (blockCount / 2) * blockSize, HALF_PI, HALF_PI);
     player.updateCamera();
 
+    updateCurrUrl();
 
-    blocks.push(new Block(0, blockCount - 5, 1, 1, 1));
-    blocks.push(new Block(0, blockCount - 5, 6.375, 1, 1));
-
-
-    tickSequenceUpdate();
-
+    console.log(params);
 
 
     /* //Jam
@@ -360,13 +373,33 @@ function tickSequenceUpdate() {
         paramStratEle.style.backgroundImage = "linear-gradient(red, red)"
         paramStratEle.style.backgroundPosition = (w + 12) + "px";
         paramStratEle.style.backgroundRepeat = "no-repeat";
+
         tickSequence = new TickSequence();
-        tickSequence.updateInitialPosition(createVector(0.5, 0, coord + 0.7));
+        tickSequence.updateInitialPosition(createVector(coord.x - 0.3, 0, coord.z + 0.7));
         tickSequence.pushStopTick();
     } else {
         paramStratEle.style = "";
         tickSequence = ts;
-        tickSequence.updateInitialPosition(createVector(0.5, 0, coord + 0.7));
+        tickSequence.updateInitialPosition(createVector(coord.x - 0.3, ground.groundHeight(createVector(coord.x - 0.3, 0, coord.z + 0.7)), coord.z + 0.7));
+    }
+}
+
+function blocksUpdate() {
+    let bString = Block.fromBlocksString(blockLayout);
+    if (typeof bString == "number") {
+        console.log(blockLayout.slice(0, bString) + "%c" + blockLayout.slice(bString), "background-color: red;")
+        let w = getTextWidth(blockLayout.slice(0, bString), '1rem -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji"');
+        let tw = getTextWidth(blockLayout.slice(bString), '1rem -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji"');
+        paramBlocksEle.style.backgroundSize = tw + "px";
+        paramBlocksEle.style.backgroundImage = "linear-gradient(red, red)"
+        paramBlocksEle.style.backgroundPosition = (w + 12) + "px";
+        paramBlocksEle.style.backgroundRepeat = "no-repeat";
+
+        blocks = Block.groundRow();
+    } else {
+        paramBlocksEle.style = "";
+        blocks = Block.groundRow();
+        blocks.push(...bString);
     }
 }
 
@@ -377,16 +410,41 @@ function updateParam() {
     params = params.map(p => decodeURIComponent(p));
     strat = params[params.length - 1];
 
-    coord = parseFloat(params[1]);
-    coord = coord != NaN ? coord : 0;
-    if (coord < 0) coord += 1.6;
+    blockLayout = params[0];
+
+    coords = params[1];
+    let cs = coords.split(";");
+    if(cs.length == 1 && cs[0] == "") cs[0] = "0";
+    if (cs.every(e => e.match(/^-?\d+(\.\d+)?$/) != null)) {
+        paramCoordsEle.style = "";
+
+        coord = {
+            x: cs.length > 1 ? parseFloat(cs[0]) || 0 : 0.5,
+            z: cs.length > 1 ? parseFloat(cs[1]) || 0 : parseFloat(cs[0])
+        }
+        if (coord.x < 0) coord.x += 1.6;
+        if (coord.z < 0) coord.z += 1.6;
+    } else {
+        let i = cs[0].match(/^-?\d+(\.\d+)?$/) != null ? coords.indexOf(";") : 0;
+        console.log(coords.slice(0, i) + "%c" + coords.slice(i), "background-color: red;")
+        let w = getTextWidth(coords.slice(0, i), '1rem -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji"');
+        let tw = getTextWidth(coords.slice(i), '1rem -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji"');
+        paramCoordsEle.style.backgroundSize = tw + "px";
+        paramCoordsEle.style.backgroundImage = "linear-gradient(red, red)"
+        paramCoordsEle.style.backgroundPosition = (w + 12) + "px";
+        paramCoordsEle.style.backgroundRepeat = "no-repeat";
+
+    }
 }
 
 function updateCurrUrl() {
     updateParam();
 
     paramStratEle.value = strat;
+    paramBlocksEle.value = blockLayout;
+    paramCoordsEle.value = coords;
 
+    blocksUpdate();
     tickSequenceUpdate();
 
     tickSequenceContainer.innerHTML = "";

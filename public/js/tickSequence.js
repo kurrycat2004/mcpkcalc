@@ -107,13 +107,11 @@ class TickSequence extends Array {
                 i++;
                 return;
             }
-            console.log(bsplit);
             for (let part in bsplit) {
                 if (["w", "a", "s", "d", "shift", "space", "ctrl"].includes(bsplit[part])) {
                     if (inputs[i] == undefined) inputs[i] = [];
                     inputs[i].push(bsplit[part]);
                 } else if ((m = bsplit[part].match(/^\(?(?<content>[a-zA-Z]+|(?<=\()[^\)]+(?=\)))\)?(?<len>\d+)t$/)) != null) {
-                    console.log(m);
                     let pa = m.groups.content.split(";")
                     let keys = pa[0].split("+");
                     let fa = pa.length > 1 ? pa[1] : "0°";
@@ -143,8 +141,6 @@ class TickSequence extends Array {
                 }
             }
         })
-
-        console.log(inputs);
 
         if (errorChar != -1)
             return errorChar;

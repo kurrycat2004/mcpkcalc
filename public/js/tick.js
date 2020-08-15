@@ -23,11 +23,11 @@ class Tick {
         this.doReload = true;
     }
 
-    static fromInputs(lastTick, initialPosition, facing = 0, inputs = "", strafe = false){
+    static fromInputs(lastTick, initialPosition, facing = 0, inputs = "", strafe = false) {
         let jumpTick = inputs.includes(" ") || inputs.includes("space");
         let movementType = inputs.includes("shift") ? "sneak" : (inputs.includes("ctrl") ? "sprint" : "walk");
         let keys = [...inputs].filter(e => "wasd".includes(e)).join("");
-        if(keys == "") movementType = "stop";
+        if (keys == "") movementType = "stop";
         return new Tick(lastTick, facing, movementType, keys, strafe, jumpTick, "default", initialPosition);
     }
 
@@ -60,6 +60,8 @@ class Tick {
         }
         this.onGround = false;
         if (this.lastTick == undefined || this.lastTick.lastTick == undefined || ground.groundHeight(this.lastTick.lastTick.pos) == this.lastTick.pos.y) this.onGround = true;
+        this.movementType = this.propMovementType;
+        if (this.lastTick != undefined && this.propMovementType == "sprint" && this.lastTick.propMovementType != "sprint" && !this.onGround) this.movementType = "walk";
         this.groundSlipperiness = Tick.getSlipperinessFromBlock(this.onGround ? (this.groundType || "default") : "air");
 
         this.vel = this._getVel();
@@ -142,10 +144,10 @@ class Tick {
 
         let velX = lastTick.vel.x * lastTick.groundSlipperiness * 0.91;
         let velZ = lastTick.vel.z * lastTick.groundSlipperiness * 0.91;
-        
+
         velX = Math.abs(velX) < (version == "1.8" ? 0.005 : 0.003) ? 0 : velX;
         velZ = Math.abs(velZ) < (version == "1.8" ? 0.005 : 0.003) ? 0 : velZ;
-        
+
         if (this.onGround) {
             let acc = 0.1 * this._M() * this._E() * Math.pow(0.6 / this.groundSlipperiness, 3);
             velX += acc * Math.sin(this.direction);

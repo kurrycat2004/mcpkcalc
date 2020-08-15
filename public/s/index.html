@@ -11,6 +11,7 @@
     <script src="/libs/p5/p5.js"></script>
     <script src="/libs/p5/addons/p5.sound.min.js"></script>
 
+    <script src="/js/blockType.js"></script>
     <script src="/js/exportCSV.js"></script>
     <script src="/js/block.js"></script>
     <script src="/js/ground.js"></script>
@@ -29,31 +30,52 @@
         <div class="container-fluid mt-3" id="simulation">
             <div class="row">
                 <div class="col">
-                    <div id="canvas" class="canvas">
-
-                    </div>
+                    <div id="canvas" class="canvas"></div>
                 </div>
-                <div class="col" style="overflow-y: scroll; height: 600px;">
+                <div class="col" style="min-width: 400px; overflow-y: scroll; height: 600px;">
                     <div class="accordion" id="tickSequenceContainer">
                     </div>
                 </div>
             </div>
             <div class="row">
-                <div id="strat" class="col">
+                <div id="arrows" class="col-0">
                     <div class="input-group">
-                        <div class="input-group-prepend">
-                            <button type="button" id="stratBack" class="btn btn-outline-secondary">
-                                <span class="fa fa-chevron-left" aria-hidden="true"></span>
-                            </button>
-                            <button type="button" id="stratForward" class="btn btn-outline-secondary">
-                                <span class="fa fa-chevron-right" aria-hidden="true"></span>
-                            </button>
+                        <button type="button" id="arrowBack" class="btn btn-outline-secondary">
+                            <span class="fa fa-chevron-left" aria-hidden="true"></span>
+                        </button>
+                        <button type="button" id="arrowForward" class="btn btn-outline-secondary">
+                            <span class="fa fa-chevron-right" aria-hidden="true"></span>
+                        </button>
+                    </div>
+                </div>
+                <div id="paramInputs" class="col">
+                    <div class="row">
+                        <div id="blocks" class="col">
+                            <div class="input-group">
+                                <input autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" class="form-control" id="paramBlocks">
+                                </input>
+                            </div>
                         </div>
-                        <input class="form-control" id="paramStrat">
-                        </input>
+                    </div>
+                    <div class="row">
+                        <div id="coords" class="col">
+                            <div class="input-group">
+                                <input autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" class="form-control" id="paramCoords">
+                                </input>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div id="strat" class="col">
+                            <div class="input-group">
+                                <input autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" class="form-control" id="paramStrat">
+                                </input>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
+
         </div>
     </div>
     <script src="/libs/jQuery/js/jquery-3.5.1.slim.min.js"></script>

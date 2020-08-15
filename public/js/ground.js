@@ -8,13 +8,14 @@ class Ground {
     }
     groundHeight(pos) {
         if (pos != undefined) {
-            let highest = blocks.reduce((a, b) => {
-                if (!(pos.z + 0.3 > a.pos.z && pos.z - 0.3 < a.pos.z + a.size.z && pos.x + 0.3 > a.pos.x && pos.x - 0.3 < a.pos.x + a.size.x)) return b;
-                if (!(pos.z + 0.3 > b.pos.z && pos.z - 0.3 < b.pos.z + a.size.z && pos.x + 0.3 > b.pos.x && pos.x - 0.3 < b.pos.x + b.size.x)) return a;
-                if (a.pos.y < b.pos.y) return a;
-                return b;
+            let highest = blocks.filter(b => {
+                return pos.z + 0.3 >= b.pos.z && pos.z - 0.3 < b.pos.z + b.size.z && pos.x + 0.3 >= b.pos.x && pos.x - 0.3 < b.pos.x + b.size.x;
             });
-            return blockCount - highest.pos.y - 5;
+            if(highest.length == 0) return -5;
+            return highest.reduce((a, b) => {
+                if (a.pos.y > b.pos.y) return a;
+                return b;
+            }).pos.y;
         }
     }
 }
