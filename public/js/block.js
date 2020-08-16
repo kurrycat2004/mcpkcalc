@@ -14,7 +14,7 @@ class Block {
     static fromBlocksString(original) {
         let errorChar = -1;
         let bs = [];
-        let parts = original.split(/(?<=\))(?=\()/);
+        let parts = original.split(/(?=\()/);
         for (let p in parts) {
             let part = parts[p];
             let m;
@@ -43,65 +43,143 @@ class Block {
         else return errorChar;
     }
 
+    _TextureTop() {
+        push();
+        texture(this.type.texture.top);
+        translate(
+            this.pos.x * blockSize + this.size.x * blockSize / 2,
+            (blockCount - (this.pos.y + this.size.y / 2) - 5 + this.size.y) * blockSize - this.size.y * blockSize / 2,
+            this.pos.z * blockSize + this.size.z * blockSize / 2
+        );
+        rotateX(HALF_PI);
+        rect(0, 0, this.size.x * blockSize, this.size.z * blockSize);
+        pop();
+    }
+
+    _TextureBottom() {
+        push();
+        texture(this.type.texture.bottom);
+        translate(
+            this.pos.x * blockSize + this.size.x * blockSize / 2,
+            (blockCount - (this.pos.y + this.size.y / 2) - 5 + this.size.y) * blockSize + this.size.y * blockSize / 2,
+            this.pos.z * blockSize + this.size.z * blockSize / 2
+        );
+        rotateX(-HALF_PI);
+        rect(0, 0, this.size.x * blockSize, this.size.z * blockSize);
+        pop();
+    }
+
+    _TextureLeft() {
+        push();
+        texture(this.type.texture.left);
+        translate(
+            this.pos.x * blockSize + this.size.x * blockSize / 2,
+            (blockCount - (this.pos.y + this.size.y / 2) - 5 + this.size.y) * blockSize,
+            this.pos.z * blockSize + this.size.z * blockSize / 2 - this.size.z * blockSize / 2
+        );
+        rect(0, 0, this.size.x * blockSize, this.size.y * blockSize);
+        pop();
+    }
+
+    _TextureRight() {
+        push();
+        texture(this.type.texture.right);
+        translate(
+            this.pos.x * blockSize + this.size.x * blockSize / 2,
+            (blockCount - (this.pos.y + this.size.y / 2) - 5 + this.size.y) * blockSize,
+            this.pos.z * blockSize + this.size.z * blockSize / 2 + this.size.z * blockSize / 2
+        );
+        rect(0, 0, this.size.x * blockSize, this.size.y * blockSize);
+        pop();
+    }
+
+    _TextureFront() {
+        push();
+        texture(this.type.texture.front);
+        translate(
+            this.pos.x * blockSize + this.size.x * blockSize / 2 - this.size.x * blockSize / 2,
+            (blockCount - (this.pos.y + this.size.y / 2) - 5 + this.size.y) * blockSize,
+            this.pos.z * blockSize + this.size.z * blockSize / 2
+        );
+        rotateY(HALF_PI);
+        rect(0, 0, this.size.y * blockSize, this.size.z * blockSize);
+        pop();
+    }
+
+    _TextureBack() {
+        push();
+        texture(this.type.texture.back);
+        translate(
+            this.pos.x * blockSize + this.size.x * blockSize / 2 + this.size.x * blockSize / 2,
+            (blockCount - (this.pos.y + this.size.y / 2) - 5 + this.size.y) * blockSize,
+            this.pos.z * blockSize + this.size.z * blockSize / 2
+        );
+        rotateY(-HALF_PI);
+        rect(0, 0, this.size.y * blockSize, this.size.z * blockSize);
+        pop();
+    }
+
     show(threeD = false) {
         if (threeD) {
-            push();
-            translate(this.pos.x * blockSize + this.size.x * blockSize / 2, (blockCount - (this.pos.y + this.size.y / 2) - 5 + this.size.y) * blockSize, this.pos.z * blockSize + this.size.z * blockSize / 2);
+
             if (this.type && this.type.texture) {
                 noStroke();
-                noFill();
-                push();
+                fill(0);
                 rectMode(CENTER);
 
-                //TOP
-                texture(this.type.texture.top);
-                translate(0, -this.size.y * blockSize / 2, 0);
-                rotateX(HALF_PI);
-                rect(0, 0, this.size.x * blockSize, this.size.z * blockSize);
-                rotateX(-HALF_PI);
+                let x = this.pos.x * blockSize + this.size.x * blockSize / 2 - player.camPos.x;
+                let y = (blockCount - (this.pos.y + this.size.y / 2) - 5 + this.size.y) * blockSize - player.camPos.y;
+                let z = this.pos.z * blockSize + this.size.z * blockSize / 2 - player.camPos.z;
 
-                //BOTTOM
-                translate(0, this.size.y * blockSize, 0);
-                rotateX(-HALF_PI);
-                texture(this.type.texture.bottom);
-                rect(0, 0, this.size.x * blockSize, this.size.z * blockSize);
-                rotateX(HALF_PI);
-                translate(0, -this.size.y * blockSize / 2, 0);
+                let functions = {
+                    front: {
+                        f: (x < 0 ? this._TextureFront : this._TextureBack).bind(this),
+                        k: x
+                    },
+                    back: {
+                        f: (x < 0 ? this._TextureBack : this._TextureFront).bind(this),
+                        k: x
+                    },
+                    top: {
+                        f: (y < 0 ? this._TextureTop : this._TextureBottom).bind(this),
+                        k: y
+                    },
+                    bottom: {
+                        f: (y < 0 ? this._TextureBottom : this._TextureTop).bind(this),
+                        k: y
+                    },
+                    left: {
+                        f: (z < 0 ? this._TextureLeft : this._TextureRight).bind(this),
+                        k: z
+                    },
+                    right: {
+                        f: (z < 0 ? this._TextureRight : this._TextureLeft).bind(this),
+                        k: z
+                    },
+                }
 
-                //LEFT
-                texture(this.type.texture.left);
-                translate(0, 0, -this.size.z * blockSize / 2);
-                rect(0, 0, this.size.x * blockSize, this.size.y * blockSize);
+                let first = ["front", "top", "left"].sort((a,b) => functions[a].k - functions[b].k);
+                let secnd = ["back", "bottom", "right"].sort((a,b) => functions[a].k - functions[b].k);
 
-                //RIGHT
-                texture(this.type.texture.right);
-                translate(0, 0, this.size.z * blockSize);
-                rect(0, 0, this.size.x * blockSize, this.size.y * blockSize);
-                translate(0, 0, -this.size.z * blockSize / 2);
 
-                //FRONT
-                texture(this.type.texture.front);
-                translate(-this.size.x * blockSize / 2, 0, 0);
-                rotateY(HALF_PI);
-                rect(0, 0, this.size.y * blockSize, this.size.z * blockSize);
-                rotateY(-HALF_PI);
-                translate(this.size.x * blockSize / 2, 0, 0);
+                functions[first[0]].f();
+                functions[first[1]].f();
+                functions[first[2]].f();
 
-                //BACK
-                texture(this.type.texture.back);
-                translate(this.size.x * blockSize / 2, 0, 0);
-                rotateY(-HALF_PI);
-                rect(0, 0, this.size.y * blockSize, this.size.z * blockSize);
-                rotateY(HALF_PI);
-                translate(-this.size.x * blockSize / 2, 0, 0);
+                functions[secnd[0]].f();
+                functions[secnd[1]].f();
+                functions[secnd[2]].f();
 
-                pop();
+                rectMode(CORNER);
             } else {
+                push();
                 stroke(0);
                 fill(255);
+                translate(this.pos.x * blockSize + this.size.x * blockSize / 2, (blockCount - (this.pos.y + this.size.y / 2) - 5 + this.size.y) * blockSize, this.pos.z * blockSize + this.size.z * blockSize / 2);
                 box(this.size.x * blockSize, this.size.y * blockSize, this.size.z * blockSize);
+                pop();
             }
-            pop();
+
         } else {
             stroke(0);
             fill(255);

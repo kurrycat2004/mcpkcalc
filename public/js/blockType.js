@@ -116,66 +116,68 @@ class BlockType {
         }
     }
 
-    static types = {
-        "s": {
-            size: {
-                x: 1,
-                y: 0.5,
-                z: 1,
-            },
-            texture: undefined,
-        },
-        "b": {
-            size: {
-                x: 1,
-                y: 1,
-                z: 1,
-            },
-            texture: undefined,
-        },
-        "l": {
-            size: {
-                x: 1,
-                y: 1,
-                z: 0.125,
-            },
-            texture: undefined,
-        },
-        "td": {
-            size: {
-                x: 1,
-                y: 1,
-                z: 0.1875,
-            },
-            texture: undefined,
-        },
-        "f": {
-            size: {
-                x: 0.25,
-                y: 1.5,
-                z: 0.25
-            },
-            transforms: true,
-            texture: undefined,
-        },
-        "cw": {
-            size: {
-                x: 0.5,
-                y: 1.5,
-                z: 0.5
-            },
-            transforms: true,
-            texture: undefined,
-        },
+    static get replacements() {
+        return {
+            "block": "b",
+            "cobblewall": "cw",
+            "ladder": "l",
+            "fence": "f",
+            "slab": "s",
+            "tcw": "scw",
+            "trapdoor": "td"
+        }
     }
+}
 
-    static replacements = {
-        "block": "b",
-        "cobblewall": "cw",
-        "ladder": "l",
-        "fence": "f",
-        "slab": "s",
-        "tcw": "scw",
-        "trapdoor": "td"
-    }
+BlockType.types = {
+    "s": {
+        size: {
+            x: 1,
+            y: 0.5,
+            z: 1,
+        },
+        texture: undefined,
+    },
+    "b": {
+        size: {
+            x: 1,
+            y: 1,
+            z: 1,
+        },
+        texture: undefined,
+    },
+    "l": {
+        size: {
+            x: 1,
+            y: 1,
+            z: 0.125,
+        },
+        texture: undefined,
+    },
+    "td": {
+        size: {
+            x: 1,
+            y: 1,
+            z: 0.1875,
+        },
+        texture: undefined,
+    },
+    "f": {
+        size: {
+            x: 0.25,
+            y: 1.5,
+            z: 0.25
+        },
+        transforms: true,
+        texture: undefined,
+    },
+    "cw": {
+        size: {
+            x: 0.5,
+            y: 1.5,
+            z: 0.5
+        },
+        transforms: true,
+        texture: undefined,
+    },
 }

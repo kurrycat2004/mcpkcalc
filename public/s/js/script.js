@@ -16,7 +16,7 @@ let player;
 let camSpeed = 1;
 let pointerLock;
 
-let rotating = true;
+let rotating = false;
 let rotatingText;
 
 let tickSequenceContainer;
@@ -51,7 +51,7 @@ function onLoad() {
     window.history.replaceState({ first: true }, null, decodeURIComponent(window.location.pathname));
 }
 
-function getGraphicsFromImg(i){
+function getGraphicsFromImg(i) {
     let g = createGraphics(i.width * blockSize, i.height * blockSize);
     g.image(i, 0, 0, i.width * blockSize, i.height * blockSize);
     return g;
@@ -59,10 +59,18 @@ function getGraphicsFromImg(i){
 
 function preload() {
     //TODO: TEXTURE LOADING
-    BlockType.types.l.texture = {}
+    BlockType.types.b.texture = {};
+    BlockType.types.l.texture = {};
     loadImage("/s/assets/images/ladder_front.png", i => {
         BlockType.types.l.texture.front = getGraphicsFromImg(i);
         BlockType.types.l.texture.back = getGraphicsFromImg(i);
+
+        BlockType.types.b.texture.front = getGraphicsFromImg(i);
+        BlockType.types.b.texture.back = getGraphicsFromImg(i);
+        BlockType.types.b.texture.top = getGraphicsFromImg(i);
+        BlockType.types.b.texture.bottom = getGraphicsFromImg(i);
+        BlockType.types.b.texture.left = getGraphicsFromImg(i);
+        BlockType.types.b.texture.right = getGraphicsFromImg(i);
     });
     loadImage("/s/assets/images/ladder_top.png", i => {
         BlockType.types.l.texture.top = getGraphicsFromImg(i);
@@ -317,7 +325,11 @@ function draw() {
             }
         }
     }
-    for (let b of blocks) {
+    let bs = blocks.sort((a, b) =>
+        dist(player.camPos.x, player.camPos.y, player.camPos.z, (b.pos.x + b.size.x / 2) * blockSize, (b.pos.y + b.size.y / 2) * blockSize, (b.pos.z + b.size.z / 2) * blockSize) -
+        dist(player.camPos.x, player.camPos.y, player.camPos.z, (a.pos.x + a.size.x / 2) * blockSize, (a.pos.y + a.size.y / 2) * blockSize, (a.pos.z + a.size.z / 2) * blockSize)
+    );
+    for (let b of bs) {
         b.show(true);
     }
     noFill();
