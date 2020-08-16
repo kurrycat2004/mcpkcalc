@@ -59,18 +59,12 @@ function getGraphicsFromImg(i) {
 
 function preload() {
     //TODO: TEXTURE LOADING
-    BlockType.types.b.texture = {};
+    
+    //BlockType.types.b.texture = {};
     BlockType.types.l.texture = {};
     loadImage("/s/assets/images/ladder_front.png", i => {
         BlockType.types.l.texture.front = getGraphicsFromImg(i);
         BlockType.types.l.texture.back = getGraphicsFromImg(i);
-
-        BlockType.types.b.texture.front = getGraphicsFromImg(i);
-        BlockType.types.b.texture.back = getGraphicsFromImg(i);
-        BlockType.types.b.texture.top = getGraphicsFromImg(i);
-        BlockType.types.b.texture.bottom = getGraphicsFromImg(i);
-        BlockType.types.b.texture.left = getGraphicsFromImg(i);
-        BlockType.types.b.texture.right = getGraphicsFromImg(i);
     });
     loadImage("/s/assets/images/ladder_top.png", i => {
         BlockType.types.l.texture.top = getGraphicsFromImg(i);
