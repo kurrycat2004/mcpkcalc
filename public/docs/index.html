@@ -13,12 +13,19 @@
 </head>
 
 <body>
-    <div class="container">
+    <div class="container mb-5">
         <h1 class="mt-5">Block Layout</h1>
         <div class="container">
             <p><code>/s/<var>BLOCK_LAYOUT</var>/coords/strat</code></p>
             <p>The basic format of the blockLayout is
-                <code>(<var>blockType</var>&lt;:Z|X&lt;-|+&gt;?&gt;?;[<var>x</var>,<var>y</var>,<var>z</var>])</code>
+                <code>(<var>blockType</var>&lt;:Z|X&lt;-|+&gt;?&gt;?;[<var>x</var>,<var>y</var>,<var>z</var>])</code><br>
+            </p>
+            <p class="small">
+                Each of these represents one block. To add more than one just put as much as you want after
+                each other: <br>
+                <code>
+                    (s;[0,0,1])(f;[0,-1,6])    
+                </code>
             </p>
             <h4>Blocktype</h4>
             <p>
@@ -84,6 +91,7 @@
         </div>
         <h1 class="mt-5">Coords</h1>
         <div class="container">
+            <p><code>/s/block_layout/<var>COORDS</var>/strat</code></p>
             <p>
                 The basic format of the starting coords is <code>&lt;<var>x</var>&gt;?;<var>z</var></code>
             </p>
@@ -96,7 +104,8 @@
                 A negative number means that it's moved by that amount from the back edge and a positive number means
                 that it's moved by that amount from the front edge.
             </p>
-            <p class="small">The edges are at <var>-0.3</var> and <var>1.3</var> so <code>-0.1</code> would mean a z coord of <var>1.2</var></p>
+            <p class="small">The edges are at <var>-0.3</var> and <var>1.3</var> so <code>-0.1</code> would mean a z
+                coord of <var>1.2</var></p>
             <p>
                 Examples:<br>
                 <code>-0.127</code> → 0, 1.173 <br>
@@ -104,8 +113,68 @@
             </p>
         </div>
         <h1 class="mt-5">Strat</h1>
-        <div class="container">
-
+        <div class="container pb-5">
+            <p><code>/s/block_layout/coords/<var>STRAT</var></code></p>
+            <p>
+                The basic format of the strat is
+                <code>&lt;<var>keys</var>&lt;;<var>facing</var>&gt;?&gt;?_&lt;<var>keys</var>&lt;;<var>facing</var>&gt;?&gt;?_...</code>
+            </p>
+            <h4>Keys</h4>
+            <p>
+                The basic keys you can use are <br>
+                <var>w</var>, <var>a</var>, <var>s</var>, <var>d</var>, <var>space</var>, <var>shift</var>,
+                <var>ctrl</var>
+            </p>
+            <p>
+                For pressing two or more keys at the same time just add a <code>+</code> in between like this:
+                <code>w+a+space</code>.
+            </p>
+            <p>
+                There are also some terms you can use instead of multiple keys with a <code>+</code> between them.
+            </p>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">Shorthand</th>
+                        <th scope="col">Meaning</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>jam</code></td>
+                        <td><code>w+space+ctrl</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>bwjam</code></td>
+                        <td><code>s+space</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>W</code></td>
+                        <td><code>w+ctrl</code></td>
+                    </tr>
+                </tbody>
+            </table>
+            <h4>Ticks</h4>
+            <p>
+                The different ticks are seperated by an <code>_</code>
+            </p>
+            <p>
+                Examples:<br>
+                <code>W_jam_W_W</code> <br>
+                <code>bwjam_w_W_W_W</code>
+            </p>
+            <h4>Repeating</h4>
+            <p>
+                <code>W_W_W_W_W_W</code> can also be rewritten as <code>(W)6t</code> or <code>W6t</code> <br>
+                Format: <code>(<var>key</var>+<var>key</var>+<var>key</var>...)<var>X</var>t</code> or <code><var>key</var><var>X</var>t</code>
+            </p>
+            <p>
+                Examples: <br>
+                <code>a3t</code> → <code>a_a_a</code> <br>
+                <code>w+a4t</code> → <code>w+a_a_a_a</code> <br>
+                <code>(w+a)4t</code> → <code>w+a_w+a_w+a_w+a</code> <br>
+                <code>W3t_a</code> → <code>W_W+a_W</code> <br>
+            </p>
         </div>
     </div>
     <script src="/libs/jQuery/js/jquery-3.5.1.slim.min.js"></script>
