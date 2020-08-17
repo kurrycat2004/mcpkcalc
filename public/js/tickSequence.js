@@ -150,9 +150,7 @@ class TickSequence extends Array {
             ts.pushStopTick();
             let a = 0;
             let m;
-            console.log(inputs);
             for (let t of inputs) {
-                console.log(t)
                 if (t.length > 0 && (m = t[0].match(TickSequence.facingRegex)) != null) {
                     if (m.groups.a != "") a = parseFloat(t[0].substring(0, t[0].length - 2));
                     else a += parseFloat(t[0].substring(0, t[0].length - 1));
