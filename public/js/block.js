@@ -1,8 +1,9 @@
 class Block {
-    constructor(x, y, z, sizeX, sizeY, sizeZ, type) {
+    constructor(x, y, z, sizeX, sizeY, sizeZ, b) {
         this.pos = createVector(x, y, z);
         this.size = createVector(sizeX, sizeY != undefined ? sizeY : sizeX, sizeZ != undefined ? sizeZ : sizeX);
-        this.type = type;
+        this.type = b.blockType;
+        this.blockType = b;
     }
 
     static groundRow() {
@@ -33,7 +34,10 @@ class Block {
                 let bSize = b.size;
 
                 let x = parseFloat(m.groups.x) + bOff.x, y = parseFloat(m.groups.y) + bOff.y, z = parseFloat(m.groups.z) + bOff.z;
-                bs.push(new Block(x, y, z, bSize.x, bSize.y, bSize.z, b.blockType));
+                let blo = new Block(x, y, z, bSize.x, bSize.y, bSize.z, b);
+                //blo.size = blo.type.size;
+                console.log(blo.size)
+                bs.push(blo);
             } else {
                 errorChar = parts.slice(0, p).join("").length;
             }
@@ -102,7 +106,7 @@ class Block {
             this.pos.z * blockSize + this.size.z * blockSize / 2
         );
         rotateY(HALF_PI);
-        rect(0, 0, this.size.y * blockSize, this.size.z * blockSize);
+        rect(0, 0, this.size.z * blockSize, this.size.y * blockSize);
         pop();
     }
 
@@ -115,7 +119,7 @@ class Block {
             this.pos.z * blockSize + this.size.z * blockSize / 2
         );
         rotateY(-HALF_PI);
-        rect(0, 0, this.size.y * blockSize, this.size.z * blockSize);
+        rect(0, 0, this.size.z * blockSize, this.size.y * blockSize);
         pop();
     }
 
@@ -123,7 +127,8 @@ class Block {
         if (threeD) {
 
             if (this.type && this.type.texture) {
-                noStroke();
+                strokeWeight(0.1);
+                stroke(0);
                 fill(0);
                 rectMode(CENTER);
 
@@ -133,44 +138,67 @@ class Block {
 
                 let functions = {
                     front: {
-                        f: (x < 0 ? this._TextureFront : this._TextureBack).bind(this),
-                        k: x
+                        f: this._TextureFront.bind(this),
+                        k: createVector(
+                            this.pos.x * blockSize + this.size.x * blockSize / 2 - this.size.x * blockSize / 2,
+                            (blockCount - (this.pos.y + this.size.y / 2) - 5 + this.size.y) * blockSize,
+                            this.pos.z * blockSize + this.size.z * blockSize / 2
+                        )
                     },
                     back: {
-                        f: (x < 0 ? this._TextureBack : this._TextureFront).bind(this),
-                        k: x
+                        f: this._TextureBack.bind(this),
+                        k: createVector(
+                            this.pos.x * blockSize + this.size.x * blockSize / 2 + this.size.x * blockSize / 2,
+                            (blockCount - (this.pos.y + this.size.y / 2) - 5 + this.size.y) * blockSize,
+                            this.pos.z * blockSize + this.size.z * blockSize / 2
+                        )
                     },
                     top: {
-                        f: (y < 0 ? this._TextureTop : this._TextureBottom).bind(this),
-                        k: y
+                        f: this._TextureTop.bind(this),
+                        k: createVector(
+                            this.pos.x * blockSize + this.size.x * blockSize / 2,
+                            (blockCount - (this.pos.y + this.size.y / 2) - 5 + this.size.y) * blockSize - this.size.y * blockSize / 2,
+                            this.pos.z * blockSize + this.size.z * blockSize / 2
+                        )
                     },
                     bottom: {
-                        f: (y < 0 ? this._TextureBottom : this._TextureTop).bind(this),
-                        k: y
+                        f: this._TextureBottom.bind(this),
+                        k: createVector(
+                            this.pos.x * blockSize + this.size.x * blockSize / 2,
+                            (blockCount - (this.pos.y + this.size.y / 2) - 5 + this.size.y) * blockSize + this.size.y * blockSize / 2,
+                            this.pos.z * blockSize + this.size.z * blockSize / 2
+                        )
                     },
                     left: {
-                        f: (z < 0 ? this._TextureLeft : this._TextureRight).bind(this),
-                        k: z
+                        f: this._TextureLeft.bind(this),
+                        k: createVector(
+                            this.pos.x * blockSize + this.size.x * blockSize / 2,
+                            (blockCount - (this.pos.y + this.size.y / 2) - 5 + this.size.y) * blockSize,
+                            this.pos.z * blockSize + this.size.z * blockSize / 2 - this.size.z * blockSize / 2
+                        )
                     },
                     right: {
-                        f: (z < 0 ? this._TextureRight : this._TextureLeft).bind(this),
-                        k: z
+                        f: this._TextureRight.bind(this),
+                        k: createVector(
+                            this.pos.x * blockSize + this.size.x * blockSize / 2,
+                            (blockCount - (this.pos.y + this.size.y / 2) - 5 + this.size.y) * blockSize,
+                            this.pos.z * blockSize + this.size.z * blockSize / 2 + this.size.z * blockSize / 2
+                        )
                     },
                 }
 
-                let first = ["front", "top", "left"].sort((a,b) => functions[a].k - functions[b].k);
-                let secnd = ["back", "bottom", "right"].sort((a,b) => functions[a].k - functions[b].k);
+                let first = ["front", "top", "left", "back", "bottom", "right"].sort(
+                    (a, b) =>
+                        dist(functions[b].k.x, functions[b].k.y, functions[b].k.z, player.camPos.x, player.camPos.y, player.camPos.z) -
+                        dist(functions[a].k.x, functions[a].k.y, functions[a].k.z, player.camPos.x, player.camPos.y, player.camPos.z)
+                );
 
-
-                functions[first[0]].f();
-                functions[first[1]].f();
-                functions[first[2]].f();
-
-                functions[secnd[0]].f();
-                functions[secnd[1]].f();
-                functions[secnd[2]].f();
+                first.forEach(e => {
+                    functions[e].f()
+                });
 
                 rectMode(CORNER);
+                strokeWeight(1);
             } else {
                 push();
                 stroke(0);

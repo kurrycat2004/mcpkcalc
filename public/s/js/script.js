@@ -26,6 +26,8 @@ let mousePressPos = { x: -1, y: -1 }
 
 let blocks = [];
 
+//TODO: TEXTURE ORIENTATION
+
 let params;
 
 let blockLayout;
@@ -51,8 +53,13 @@ function onLoad() {
     window.history.replaceState({ first: true }, null, decodeURIComponent(window.location.pathname));
 }
 
-function getGraphicsFromImg(i) {
-    let g = createGraphics(i.width * blockSize, i.height * blockSize);
+function getGraphicsFromImg(i, rot = 0) {
+    let w = rot % PI == 0 ? i.width : i.height;
+    let h = rot % PI == 0 ? i.height : i.width;
+    let g = createGraphics(w * blockSize, h * blockSize);
+    g.translate(w * blockSize / 2, h * blockSize / 2);
+    g.rotate(rot);
+    g.translate(-i.width * blockSize / 2, -i.height * blockSize / 2);
     g.image(i, 0, 0, i.width * blockSize, i.height * blockSize);
     return g;
 }
@@ -62,17 +69,32 @@ function preload() {
     
     //BlockType.types.b.texture = {};
     BlockType.types.l.texture = {};
+    BlockType.types.td.texture = {};
     loadImage("/s/assets/images/ladder_front.png", i => {
-        BlockType.types.l.texture.front = getGraphicsFromImg(i);
-        BlockType.types.l.texture.back = getGraphicsFromImg(i);
+        BlockType.types.l.texture.front = i;
+        BlockType.types.l.texture.back = i;
     });
     loadImage("/s/assets/images/ladder_top.png", i => {
-        BlockType.types.l.texture.top = getGraphicsFromImg(i);
-        BlockType.types.l.texture.bottom = getGraphicsFromImg(i);
+        BlockType.types.l.texture.top = i;
+        BlockType.types.l.texture.bottom = i;
     });
     loadImage("/s/assets/images/ladder_side.png", i => {
-        BlockType.types.l.texture.left = getGraphicsFromImg(i);
-        BlockType.types.l.texture.right = getGraphicsFromImg(i);
+        BlockType.types.l.texture.left = i;
+        BlockType.types.l.texture.right = i;
+    });
+
+    loadImage("/s/assets/images/trapdoor_front.png", i => {
+        BlockType.types.td.texture.front = i;
+
+    });
+    loadImage("/s/assets/images/empty.png", i => {
+        BlockType.types.td.texture.back = i;
+    });
+    loadImage("/s/assets/images/trapdoor_side.png", i => {
+        BlockType.types.td.texture.top = i;
+        BlockType.types.td.texture.bottom = i;
+        BlockType.types.td.texture.left = i;
+        BlockType.types.td.texture.right = i;
     });
 }
 
@@ -323,9 +345,7 @@ function draw() {
         dist(player.camPos.x, player.camPos.y, player.camPos.z, (b.pos.x + b.size.x / 2) * blockSize, (b.pos.y + b.size.y / 2) * blockSize, (b.pos.z + b.size.z / 2) * blockSize) -
         dist(player.camPos.x, player.camPos.y, player.camPos.z, (a.pos.x + a.size.x / 2) * blockSize, (a.pos.y + a.size.y / 2) * blockSize, (a.pos.z + a.size.z / 2) * blockSize)
     );
-    for (let b of bs) {
-        b.show(true);
-    }
+
     noFill();
     for (let i of tickSequence) {
         stroke(220);
@@ -348,6 +368,9 @@ function draw() {
         translate(i.pos.x * blockSize, (blockCount - i.pos.y - 5) * blockSize, i.pos.z * blockSize);
         sphere(4);
         pop();
+    }
+    for (let b of bs) {
+        b.show(true);
     }
 }
 

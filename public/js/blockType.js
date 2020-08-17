@@ -2,6 +2,36 @@ class BlockType {
     constructor(type, orientation = "Z+") {
         this.type = type;
         this.blockType = BlockType.types[type];
+        if (BlockType.types[type].texture) {
+            this.blockType = {
+                size: BlockType.types[type].size,
+                transforms: BlockType.types[type].transforms,
+            };
+            if (orientation.startsWith("X")) {
+                let oS = orientation.length > 1 ? (orientation[1] == "+" ? 1 : -1) : 1
+                this.blockType.texture = {
+                    front: getGraphicsFromImg(oS == -1 ? BlockType.types[type].texture.front : BlockType.types[type].texture.back),
+                    back: getGraphicsFromImg(oS == -1 ? BlockType.types[type].texture.back : BlockType.types[type].texture.front),
+                    top: getGraphicsFromImg(BlockType.types[type].texture.top, (oS + 1) / 2 * PI),
+                    bottom: getGraphicsFromImg(BlockType.types[type].texture.bottom, (oS + 1) / 2 * PI),
+                    left: getGraphicsFromImg(BlockType.types[type].texture.left),
+                    right: getGraphicsFromImg(BlockType.types[type].texture.right),
+                };
+            } else {
+                let oS = orientation.length > 1 ? (orientation[1] == "+" ? 1 : -1) : 1
+                this.blockType.texture = {
+                    front: getGraphicsFromImg(BlockType.types[type].texture.left),
+                    back: getGraphicsFromImg(BlockType.types[type].texture.right),
+                    top: getGraphicsFromImg(BlockType.types[type].texture.top, HALF_PI * oS),
+                    bottom: getGraphicsFromImg(BlockType.types[type].texture.bottom, -HALF_PI * oS),
+                    left: getGraphicsFromImg(oS == 1 ? BlockType.types[type].texture.front : BlockType.types[type].texture.back),
+                    right: getGraphicsFromImg(oS == 1 ? BlockType.types[type].texture.back : BlockType.types[type].texture.front),
+                };
+            }
+        } else {
+            this.blockType = BlockType.types[type];
+        }
+
         this.orientation = orientation;
     }
 
