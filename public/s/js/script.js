@@ -66,7 +66,7 @@ function getGraphicsFromImg(i, rot = 0) {
 
 function preload() {
     //TODO: TEXTURE LOADING
-    
+
     //BlockType.types.b.texture = {};
     BlockType.types.l.texture = {};
     BlockType.types.td.texture = {};
@@ -411,12 +411,12 @@ function tickSequenceUpdate() {
         paramStratEle.style.backgroundRepeat = "no-repeat";
 
         tickSequence = new TickSequence();
-        tickSequence.updateInitialPosition(createVector(coord.x - 0.3, 0, coord.z + 0.7));
+        tickSequence.updateInitialPosition(createVector(coord.x - 0.3, 0, coord.z - 0.3));
         tickSequence.pushStopTick();
     } else {
         paramStratEle.style = "";
         tickSequence = ts;
-        tickSequence.updateInitialPosition(createVector(coord.x - 0.3, ground.groundHeight(createVector(coord.x - 0.3, 0, coord.z + 0.7)), coord.z + 0.7));
+        tickSequence.updateInitialPosition(createVector(coord.x - 0.3, ground.groundHeight(createVector(coord.x - 0.3, 0, coord.z - 0.3)), coord.z - 0.3));
     }
 }
 
@@ -446,12 +446,18 @@ function updateParam() {
     params = params.map(p => decodeURIComponent(p));
 
     console.log(params);
+    if (params.length > 2)
+        strat = params[2];
+    else strat = "";
 
-    strat = params[params.length - 1];
+    if (params.length > 0)
+        blockLayout = params[0];
+    else blockLayout = "";
 
-    blockLayout = params[0];
+    if (params.length > 1)
+        coords = params[1];
+    else coords = "0";
 
-    coords = params[1];
     let cs = coords.split(";");
     if (cs.length == 1 && cs[0] == "") cs[0] = "0";
     if (cs.every(e => e.match(/^-?\d+(\.\d+)?$/) != null)) {
