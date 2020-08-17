@@ -84,6 +84,7 @@ class TickSequence extends Array {
             let f = p.length > 1 ? p[1] : "0°";
             let k = p[0];
             if (k == "" && f == "0°") {
+                inputs[i] = [];
                 i++;
                 return;
             }
@@ -149,8 +150,10 @@ class TickSequence extends Array {
             ts.pushStopTick();
             let a = 0;
             let m;
+            console.log(inputs);
             for (let t of inputs) {
-                if ((m = t[0].match(TickSequence.facingRegex)) != null) {
+                console.log(t)
+                if (t.length > 0 && (m = t[0].match(TickSequence.facingRegex)) != null) {
                     if (m.groups.a != "") a = parseFloat(t[0].substring(0, t[0].length - 2));
                     else a += parseFloat(t[0].substring(0, t[0].length - 1));
                 }
