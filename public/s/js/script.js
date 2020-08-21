@@ -10,7 +10,7 @@ let tickSequence;
 let initialPositionSlider;
 let initialPositionInput;
 
-//TODO: GROUND BROKEN
+const inputTextStyle = '1rem -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji"';
 
 let player;
 let camSpeed = 1;
@@ -22,11 +22,8 @@ let rotatingText;
 let tickSequenceContainer;
 
 let Canvas;
-let mousePressPos = { x: -1, y: -1 }
 
 let blocks = [];
-
-//TODO: TEXTURE ORIENTATION
 
 let params;
 
@@ -401,10 +398,19 @@ function mouseDragged() {
 
 function tickSequenceUpdate() {
     ts = TickSequence.fromStratString(strat);
+    let addedBlocks = blocks.filter(e => !e.defaultBlock);
+    console.log(addedBlocks);
+    if (addedBlocks.length > 0) {
+        let minBlock = addedBlocks.reduce((a, b) => (b.pos.z < a.pos.z) ? b : a);
+        if (minBlock.pos.z > coord.z) {
+            coord.z = minBlock.pos.z;
+        }
+    }
+
     if (typeof ts == "number") {
         console.log(strat.slice(0, ts) + "%c" + strat.slice(ts), "background-color: red;")
-        let w = getTextWidth(strat.slice(0, ts), '1rem -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji"');
-        let tw = getTextWidth(strat.slice(ts), '1rem -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji"');
+        let w = getTextWidth(strat.slice(0, ts), inputTextStyle);
+        let tw = getTextWidth(strat.slice(ts), inputTextStyle);
         paramStratEle.style.backgroundSize = tw + "px";
         paramStratEle.style.backgroundImage = "linear-gradient(red, red)"
         paramStratEle.style.backgroundPosition = (w + 12) + "px";
@@ -424,8 +430,8 @@ function blocksUpdate() {
     let bString = Block.fromBlocksString(blockLayout);
     if (typeof bString == "number") {
         console.log(blockLayout.slice(0, bString) + "%c" + blockLayout.slice(bString), "background-color: red;")
-        let w = getTextWidth(blockLayout.slice(0, bString), '1rem -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji"');
-        let tw = getTextWidth(blockLayout.slice(bString), '1rem -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji"');
+        let w = getTextWidth(blockLayout.slice(0, bString), inputTextStyle);
+        let tw = getTextWidth(blockLayout.slice(bString), inputTextStyle);
         paramBlocksEle.style.backgroundSize = tw + "px";
         paramBlocksEle.style.backgroundImage = "linear-gradient(red, red)"
         paramBlocksEle.style.backgroundPosition = (w + 12) + "px";
@@ -442,7 +448,10 @@ function blocksUpdate() {
 function updateParam() {
     params = window.location.pathname.split("/");
     params.splice(0, 2);
-    //if (params[0] == "") params = [];
+    if (params.length == 1 && params[0] == "") {
+        params = ["(b;[0,0,0])(b;[0,0,5])", "0", "space+w_W11t_jam_W11t"];
+        updateUrl("/s/" + params.join("/"));
+    }
     params = params.map(p => decodeURIComponent(p));
 
     console.log(params);
@@ -472,8 +481,8 @@ function updateParam() {
     } else {
         let i = cs[0].match(/^-?\d+(\.\d+)?$/) != null ? coords.indexOf(";") : 0;
         console.log(coords.slice(0, i) + "%c" + coords.slice(i), "background-color: red;")
-        let w = getTextWidth(coords.slice(0, i), '1rem -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji"');
-        let tw = getTextWidth(coords.slice(i), '1rem -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji"');
+        let w = getTextWidth(coords.slice(0, i), inputTextStyle);
+        let tw = getTextWidth(coords.slice(i), inputTextStyle);
         paramCoordsEle.style.backgroundSize = tw + "px";
         paramCoordsEle.style.backgroundImage = "linear-gradient(red, red)"
         paramCoordsEle.style.backgroundPosition = (w + 12) + "px";
@@ -485,9 +494,17 @@ function updateParam() {
 function updateCurrUrl() {
     updateParam();
 
+    let s = paramStratEle.selectionStart, e = paramStratEle.selectionEnd;
     paramStratEle.value = strat;
+    paramStratEle.setSelectionRange(s, e);
+
+    s = paramBlocksEle.selectionStart, e = paramBlocksEle.selectionEnd;
     paramBlocksEle.value = blockLayout;
+    paramBlocksEle.setSelectionRange(s, e);
+
+    s = paramCoordsEle.selectionStart, e = paramCoordsEle.selectionEnd;
     paramCoordsEle.value = coords;
+    paramCoordsEle.setSelectionRange(s, e);
 
     blocksUpdate();
     tickSequenceUpdate();
@@ -513,19 +530,6 @@ function mousePressed() {
         rotatingText.updateText(`Rotating: ${rotating} (Press mouse wheel to toggle)`, false);
     }
 }
-
-/* 
-function mouseReleased() {
-    if (Math.abs(mousePressPos.x - mouseX) > 10 || Math.abs(mousePressPos.y - mouseY) > 10) return;
-    if (mouseX > width || mouseX < 0 || mouseY > height || mouseY < 0) return;
-    let posX = Math.floor(mouseX / blockSize);
-    let posY = Math.floor(mouseY / blockSize);
-    let b = blocks.findIndex(e => e.pos.x == posX && e.pos.y == posY);
-    if (b < 0) blocks.push(new Block(posX, posY, 0, 1));
-    else blocks.splice(b, 1);
-    tickSequence.reload();
-    return false;
-} */
 
 function createEle(type, options, childs = [], editCallback = ((t) => t)) {
     let t = document.createElement(type);
@@ -612,7 +616,15 @@ function getTickAsDiv(index, tick) {
                                 },
                                     [
                                         createEle("p", {}, [], e => {
-                                            e.innerText = Tick.vectorToString(tick);
+                                            e.innerText = "Pos:\n" + Tick.vectorToString(tick);
+                                        })
+                                    ]),
+                                createEle("div", {
+                                    "class": "col"
+                                },
+                                    [
+                                        createEle("p", {}, [], e => {
+                                            e.innerText = "Vel:\n" + Tick.velToString(tick);
                                         })
                                     ])
                             ]),

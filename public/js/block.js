@@ -1,14 +1,15 @@
 class Block {
-    constructor(x, y, z, sizeX, sizeY, sizeZ, b) {
+    constructor(x, y, z, sizeX, sizeY, sizeZ, b, defaultBlock = false) {
         this.pos = createVector(x, y, z);
         this.size = createVector(sizeX, sizeY != undefined ? sizeY : sizeX, sizeZ != undefined ? sizeZ : sizeX);
         this.type = b.blockType;
         this.blockType = b;
+        this.defaultBlock = defaultBlock;
     }
 
     static groundRow() {
         let b = [];
-        for (let i = 0; i < blockCount; i++) { b.push(new Block(0, -4, i, 1, 1, 1, BlockType.types.b)) }
+        for (let i = 0; i < blockCount; i++) { b.push(new Block(0, -4, i, 1, 1, 1, BlockType.types.b, true)) }
         return b;
     }
 
@@ -35,8 +36,6 @@ class Block {
 
                 let x = parseFloat(m.groups.x) + bOff.x, y = parseFloat(m.groups.y) + bOff.y, z = parseFloat(m.groups.z) + bOff.z;
                 let blo = new Block(x, y, z, bSize.x, bSize.y, bSize.z, b);
-                //blo.size = blo.type.size;
-                console.log(blo.size)
                 bs.push(blo);
             } else {
                 errorChar = parts.slice(0, p).join("").length;

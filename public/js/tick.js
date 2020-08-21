@@ -39,6 +39,14 @@ class Tick {
         return `X: ${vector.pos.x.toFixed(16)}, \nY: ${vector.pos.y.toFixed(16)}, \nZ: ${vector.pos.z.toFixed(16)}`;
     }
 
+    static velToStringSmall(vector) {
+        return `X: ${vector.vel.x.toFixed(3)}, Y: ${vector.vel.y.toFixed(3)}, Z: ${vector.vel.z.toFixed(3)}`;
+    }
+
+    static velToString(vector) {
+        return `X: ${vector.vel.x.toFixed(16)}, \nY: ${vector.vel.y.toFixed(16)}, \nZ: ${vector.vel.z.toFixed(16)}`;
+    }
+
     static stopTick(initialPosition) {
         let t = new Tick(undefined, 0, "stop", "", false, false, "default", initialPosition);
         t.doReload = false;
