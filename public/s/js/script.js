@@ -135,15 +135,24 @@ function setup() {
 
 
     paramStratEle.oninput = () => {
+        let start = paramStratEle.selectionStart;
+        let end = paramStratEle.selectionEnd;
         updateUrl("/s/" + blockLayout + "/" + coords + "/" + paramStratEle.value);
+        paramStratEle.setSelectionRange(start, end);
     }
 
     paramBlocksEle.oninput = () => {
+        let start = paramBlocksEle.selectionStart;
+        let end = paramBlocksEle.selectionEnd;
         updateUrl("/s/" + paramBlocksEle.value + "/" + coords + "/" + strat);
+        paramBlocksEle.setSelectionRange(start, end);
     }
 
     paramCoordsEle.oninput = () => {
+        let start = paramCoordsEle.selectionStart;
+        let end = paramCoordsEle.selectionEnd;
         updateUrl("/s/" + blockLayout + "/" + paramCoordsEle.value + "/" + strat);
+        paramCoordsEle.setSelectionRange(start, end);
     }
 
     document.getElementById("arrowBack").onclick = () => {
