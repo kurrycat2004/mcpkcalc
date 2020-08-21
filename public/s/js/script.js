@@ -511,9 +511,9 @@ function updateCurrUrl() {
         tickSequenceContainer.appendChild(td);
     }
 
-    paramStratEle.setSelectionRange(startS, stratE);
+    /* paramStratEle.setSelectionRange(startS, stratE);
     paramBlocksEle.setSelectionRange(blocksS, blocksE);
-    paramCoordsEle.setSelectionRange(coordsS, coordsE);
+    paramCoordsEle.setSelectionRange(coordsS, coordsE); */
 }
 
 function updateUrl(path) {
