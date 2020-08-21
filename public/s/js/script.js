@@ -494,17 +494,14 @@ function updateParam() {
 function updateCurrUrl() {
     updateParam();
 
-    let s = paramStratEle.selectionStart, e = paramStratEle.selectionEnd;
+    let startS = paramStratEle.selectionStart, stratE = paramStratEle.selectionEnd;
     paramStratEle.value = strat;
-    paramStratEle.setSelectionRange(s, e);
 
-    s = paramBlocksEle.selectionStart, e = paramBlocksEle.selectionEnd;
+    let blocksS = paramBlocksEle.selectionStart, blocksE = paramBlocksEle.selectionEnd;
     paramBlocksEle.value = blockLayout;
-    paramBlocksEle.setSelectionRange(s, e);
 
-    s = paramCoordsEle.selectionStart, e = paramCoordsEle.selectionEnd;
+    let coordsS = paramCoordsEle.selectionStart, coordsE = paramCoordsEle.selectionEnd;
     paramCoordsEle.value = coords;
-    paramCoordsEle.setSelectionRange(s, e);
 
     blocksUpdate();
     tickSequenceUpdate();
@@ -513,6 +510,10 @@ function updateCurrUrl() {
     for (let td of getTicksAsDivs(tickSequence)) {
         tickSequenceContainer.appendChild(td);
     }
+
+    paramStratEle.setSelectionRange(startS, stratE);
+    paramBlocksEle.setSelectionRange(blocksS, blocksE);
+    paramCoordsEle.setSelectionRange(coordsS, coordsE);
 }
 
 function updateUrl(path) {
