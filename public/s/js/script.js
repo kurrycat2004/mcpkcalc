@@ -23,6 +23,8 @@ let tickSequenceContainer;
 
 let Canvas;
 
+let textures = {};
+
 let blocks = [];
 
 let params;
@@ -63,39 +65,38 @@ function getGraphicsFromImg(i, rot = 0) {
 
 function preload() {
     //TODO: TEXTURE LOADING
-
-    //BlockType.types.b.texture = {};
-    BlockType.types.l.texture = {};
-    BlockType.types.td.texture = {};
-    loadImage("/s/assets/images/ladder_front.png", i => {
-        BlockType.types.l.texture.front = i;
-        BlockType.types.l.texture.back = i;
-    });
-    loadImage("/s/assets/images/ladder_top.png", i => {
-        BlockType.types.l.texture.top = i;
-        BlockType.types.l.texture.bottom = i;
-    });
-    loadImage("/s/assets/images/ladder_side.png", i => {
-        BlockType.types.l.texture.left = i;
-        BlockType.types.l.texture.right = i;
-    });
-
-    loadImage("/s/assets/images/trapdoor_front.png", i => {
-        BlockType.types.td.texture.front = i;
-
-    });
-    loadImage("/s/assets/images/empty.png", i => {
-        BlockType.types.td.texture.back = i;
-    });
-    loadImage("/s/assets/images/trapdoor_side.png", i => {
-        BlockType.types.td.texture.top = i;
-        BlockType.types.td.texture.bottom = i;
-        BlockType.types.td.texture.left = i;
-        BlockType.types.td.texture.right = i;
-    });
+	try {
+		textures = {
+			"ladder_front": loadImage("/s/assets/images/ladder_front.png"),
+			"ladder_top": loadImage("/s/assets/images/ladder_top.png"),
+			"ladder_side": loadImage("/s/assets/images/ladder_side.png"),
+			"trapdoor_front": loadImage("/s/assets/images/trapdoor_front.png"),
+			"trapdoor_side": loadImage("/s/assets/images/trapdoor_side.png"),
+			"empty": loadImage("/s/assets/images/empty.png")
+		}
+	} catch(e){ textures = undefined };
 }
 
 function setup() {
+	if(textures){
+		BlockType.types.l.texture = {
+			front: textures["ladder_front"],
+			back: textures["ladder_front"],
+			top: textures["ladder_top"],
+			bottom: textures["ladder_top"],
+			left: textures["ladder_side"],
+			right: textures["ladder_side"]
+		};
+		BlockType.types.td.texture = {
+			front: textures["trapdoor_front"],
+			back: textures["empty"],
+			top: textures["trapdoor_side"],
+			bottom: textures["trapdoor_side"],
+			left: textures["trapdoor_side"],
+			right: textures["trapdoor_side"]	
+		};
+	}
+
     document.oncontextmenu = e => {
         if (mouseX <= width && mouseX >= 0 && mouseY <= height && mouseY >= 0) return false;
     }
@@ -290,6 +291,8 @@ function setup() {
     for (let td of getTicksAsDivs(tickSequence)) {
         tickSequenceContainer.appendChild(td);
     }
+
+	document.getElementById("metaBase64").setAttribute("imageData", Canvas.elt.toDataURL().split(",")[1]);
 }
 
 function draw() {

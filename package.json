@@ -19,7 +19,7 @@
   },
   "homepage": "https://github.com/kurrycat2004/mcpkcalc#readme",
   "dependencies": {
-    "atob": "^2.1.2",
+    "casperjs": "^1.1.4",
     "express": "^4.17.1",
     "jquery": "^3.5.1",
     "popper.js": "^1.16.1"
