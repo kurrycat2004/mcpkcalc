@@ -38,8 +38,8 @@ class TickSequence extends Array {
         return s;
     }
 
-    static get facingRegex() { return /-?\d{1,3}(.\d+)?°(?<a>a?)/ };
-    static get lastFacingRegex() { return /;(?!-?\d{1,3}(?:.\d+)?°a?\))/ };
+    static get facingRegex() { return /-?\d{1,3}(.\d+)?[°d](?<a>a?)/ };
+    static get lastFacingRegex() { return /;(?!-?\d{1,3}(?:.\d+)?[°d]a?\))/ };
     static get partRegex() { return /\+(?![^\)\(]*\))/ };
 
     static _getCurrIndex(original, tick, subFacing, subKey) {
@@ -82,6 +82,7 @@ class TickSequence extends Array {
 
             let p = v.split(TickSequence.lastFacingRegex);
             let f = p.length > 1 ? p[1] : "0°";
+            f = f.replace(/d/g, "° ");
             let k = p[0];
             if (k == "" && f == "0°") {
                 inputs[i] = [];
@@ -116,6 +117,7 @@ class TickSequence extends Array {
                     let pa = m.groups.content.replace("\(", "").split(";")
                     let keys = pa[0].split("+");
                     let fa = pa.length > 1 ? pa[1] : "0°";
+                    fa = fa.replace(/d/g, "°");
                     if (keys.every(e => ["w", "a", "s", "d", "shift", "space", "ctrl"].includes(e))) {
                         for (let j = 0; j < (m.groups.len || 1); j++) {
                             if (inputs[i + j] == undefined) inputs[i + j] = [];
