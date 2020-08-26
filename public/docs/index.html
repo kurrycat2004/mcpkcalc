@@ -31,7 +31,7 @@
             <p>
                 <code><var>blockType</var></code> would represent one of the blocktypes listed below.
             </p>
-            <p class="small">U can also write the names out</p>
+            <p class="small">You can also write the names out</p>
             <table class="table">
                 <thead>
                     <tr>
@@ -163,10 +163,29 @@
                 <code>W_jam_W_W</code> <br>
                 <code>bwjam_w_W_W_W</code>
             </p>
+            <h4>Facing</h4>
+            <p>
+                The format of the facing is <code>&lt;<var>degrees</var>&gt;&lt;°|d&gt;&lt;a&gt;?</code>
+            </p>
+            <p>
+                The facing in degrees is added to the current facing. By putting an <code>a</code> after the facing it
+                is treated as an absolute angle.
+            </p>
+            <p>
+                Examples: <br>
+                <code>W<strong>;45d</strong></code><br>
+                <code>(W+a)11t<strong>;45°a</strong></code><br>
+                <code>(w+a)4t<strong>;10da</strong></code>
+            </p>
             <h4>Repeating</h4>
             <p>
                 <code>W_W_W_W_W_W</code> can also be rewritten as <code>(W)6t</code> or <code>W6t</code> <br>
-                Format: <code>(<var>key</var>+<var>key</var>+<var>key</var>...)<var>X</var>t</code> or <code><var>key</var><var>X</var>t</code>
+                Format: <code>(<var>key</var>+<var>key</var>+<var>key</var>...)<var>X</var>t</code> or
+                <code><var>key</var><var>X</var>t</code>
+            </p>
+            <p class="small">
+                By putting a facing at the end of a repeat block you can rotate by that amount each tick. <br>
+                <code>(W+a;1°)11t</code> would rotate you by 1° every tick, first one included.
             </p>
             <p>
                 Examples: <br>
@@ -175,6 +194,7 @@
                 <code>(w+a)4t</code> → <code>w+a_w+a_w+a_w+a</code> <br>
                 <code>W3t_a</code> → <code>W_W+a_W</code> <br>
             </p>
+
         </div>
     </div>
     <script src="/libs/jQuery/js/jquery-3.5.1.slim.min.js"></script>
